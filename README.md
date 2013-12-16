@@ -1,5 +1,7 @@
 # Dockerize
 
+[![Build Status](https://travis-ci.org/modcloth-labs/dockerize.png?branch=master)](https://travis-ci.org/modcloth-labs/dockerize)
+
 Dockerizes your project.
 
 ## Installation
