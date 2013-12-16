@@ -1,0 +1,5 @@
+compat.version=1.9
+ctext.enabled=false
+errno.backtrace=true
+
+# vim:filetype=jproperties
