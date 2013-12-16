@@ -1,6 +1,6 @@
 # Dockerize
 
-TODO: Write a gem description
+Dockerizes your project.
 
 ## Installation
 
