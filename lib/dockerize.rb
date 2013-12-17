@@ -2,5 +2,7 @@
 require 'dockerize/version'
 
 module Dockerize
-  # Code goes here...
+  autoload :VERSION, 'dockerize/version'
+  autoload :Cli, 'dockerize/cli'
+  autoload :Config, 'dockerize/config'
 end

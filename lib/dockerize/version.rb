@@ -1,4 +1,7 @@
 # coding: utf-8
-module Dockerize
-  VERSION = '0.1.0'
+
+unless defined?(Dockerize::VERSION)
+  module Dockerize
+    VERSION = '0.0.1'
+  end
 end
