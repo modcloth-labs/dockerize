@@ -1,10 +1,34 @@
 # coding: utf-8
 
+require 'dockerize/error'
+
 module Dockerize
   module Cli
     class << self
-      def run
-        # do stuff here
+      attr_reader :args
+
+      def run(argv = [])
+        @args = argv
+        ensure_project_dir
+      end
+
+      private
+
+      def ensure_project_dir
+        if args.count < 1
+          fail Dockerize::Error::MissingRequiredArgument,
+               'You must specify a project directory to dockerize'
+        else
+          set_project_dir(args[0])
+        end
+      end
+
+      def set_project_dir(dir)
+        if dir == '.'
+          Dockerize::Config.project_dir = Dir.pwd
+        else
+          Dockerize::Config.project_dir = dir
+        end
       end
     end
   end

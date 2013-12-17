@@ -12,7 +12,7 @@ describe Dockerize::Config do
       config.should respond_to(:project_dir=)
     end
 
-    context 'when setting a project directory' do
+    context 'assigning a project directory' do
       let(:bogus_dir) { '/foobarbaz' }
 
       it 'explodes when the project directory does not exist' do
