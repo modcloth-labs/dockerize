@@ -28,7 +28,7 @@ describe Dockerize::Config do
       end
 
       it 'does not explode if the project directory is valid' do
-        Dir.mktmpdir('dockerize') do |tmp|
+        tmpdir do |tmp|
           expect { described_class.project_dir = tmp }.to_not raise_error
         end
       end
