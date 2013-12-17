@@ -13,4 +13,4 @@ RSpec::Core::RakeTask.new(:spec) do |t|
   t.rspec_opts = '--format documentation'
 end
 
-task default: [:rubocop, :spec]
+task default: [:spec, :rubocop]
