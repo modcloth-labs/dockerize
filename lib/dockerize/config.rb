@@ -1,9 +1,22 @@
 # coding: utf-8
 
+require 'trollop'
+
 module Dockerize
   class Config
     class << self
       attr_reader :project_dir
+
+      def quiet?
+        opts[:quiet]
+      end
+
+      def parse(args)
+        @opts = Trollop.options(args) do
+          opt :quiet, 'Silence output', type: :flag, short: 'q', default: false
+        end
+        self.project_dir = args[0]
+      end
 
       def project_dir=(dir)
         expanded_dir = File.expand_path(dir)
@@ -18,6 +31,10 @@ module Dockerize
           @project_dir = expanded_dir
         end
       end
+
+      private
+
+      attr_reader :opts
     end
   end
 end

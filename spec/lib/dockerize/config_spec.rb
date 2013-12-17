@@ -34,4 +34,29 @@ describe Dockerize::Config do
       end
     end
   end
+
+  describe 'accepting options' do
+    describe 'quiet' do
+      it 'sets quiet for -q' do
+        run '. -q'
+        config.quiet?.should == true
+      end
+
+      it 'sets quiet for --quiet' do
+        run '. --quiet'
+        config.quiet?.should == true
+
+      end
+
+      it 'sets no quiet for --no-quiet' do
+        run '. --no-quiet'
+        config.quiet?.should == false
+      end
+
+      it 'sets no quiet when when specified' do
+        run '.'
+        config.quiet?.should == false
+      end
+    end
+  end
 end

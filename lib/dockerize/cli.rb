@@ -19,7 +19,7 @@ module Dockerize
           fail Dockerize::Error::MissingRequiredArgument,
                'You must specify a project directory to dockerize'
         else
-          Dockerize::Config.project_dir = args[0]
+          Dockerize::Config.parse(args)
         end
       end
     end
