@@ -19,15 +19,7 @@ module Dockerize
           fail Dockerize::Error::MissingRequiredArgument,
                'You must specify a project directory to dockerize'
         else
-          set_project_dir(args[0])
-        end
-      end
-
-      def set_project_dir(dir)
-        if dir == '.'
-          Dockerize::Config.project_dir = Dir.pwd
-        else
-          Dockerize::Config.project_dir = dir
+          Dockerize::Config.project_dir = args[0]
         end
       end
     end

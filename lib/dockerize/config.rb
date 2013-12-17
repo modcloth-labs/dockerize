@@ -6,14 +6,16 @@ module Dockerize
       attr_reader :project_dir
 
       def project_dir=(dir)
-        if !File.exists?(dir)
+        expanded_dir = File.expand_path(dir)
+
+        if !File.exists?(expanded_dir)
           fail Dockerize::Error::NonexistentProjectDirectory,
-               "Project directory '#{dir}' does not exist"
-        elsif !File.directory?(dir)
+               "Project directory '#{expanded_dir}' does not exist"
+        elsif !File.directory?(expanded_dir)
           fail Dockerize::Error::InvalidProjectDirectory,
-               "Project directory '#{dir}' is not a directory"
+               "Project directory '#{expanded_dir}' is not a directory"
         else
-          @project_dir = dir
+          @project_dir = expanded_dir
         end
       end
     end
