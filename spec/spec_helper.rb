@@ -20,3 +20,10 @@ def run(cmd = [])
     fail 'Invalid command'
   end
 end
+
+RSpec.configure do |config|
+  config.before(:each) do
+    $stdout.stub(:print)
+    $stdout.stub(:puts)
+  end
+end
