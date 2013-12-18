@@ -29,9 +29,11 @@ RSpec.configure do |config|
   end
 end
 
-{
-  output: $stdout.clone,
-  prompt_name: 'dockerize',
-}.map do |k, v|
-  Pry.config.send(:"#{k}=", v)
+unless RUBY_PLATFORM == 'java'
+  {
+    output: $stdout.clone,
+    prompt_name: 'dockerize',
+  }.map do |k, v|
+    Pry.config.send(:"#{k}=", v)
+  end
 end
