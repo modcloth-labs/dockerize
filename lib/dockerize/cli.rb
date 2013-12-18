@@ -24,7 +24,7 @@ module Dockerize
       end
 
       def ensure_project_dir
-        if args.count < 1
+        if args.count < 1 && !%w(-h --help).include?(args[0])
           fail Dockerize::Error::MissingRequiredArgument,
                'You must specify a project directory to dockerize'
         end

@@ -4,6 +4,7 @@ require 'rubygems'
 require 'bundler/setup'
 require 'simplecov' unless RUBY_PLATFORM == 'java'
 require 'tmpdir'
+require 'pry'
 
 def tmpdir(&block)
   Dir.mktmpdir('dockerize-spec') do |tmp|
@@ -26,4 +27,11 @@ RSpec.configure do |config|
     $stdout.stub(:print)
     $stdout.stub(:puts)
   end
+end
+
+{
+  output: $stdout.clone,
+  prompt_name: 'dockerize',
+}.map do |k, v|
+  Pry.config.send(:"#{k}=", v)
 end
