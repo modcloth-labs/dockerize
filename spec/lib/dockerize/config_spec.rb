@@ -36,6 +36,28 @@ describe Dockerize::Config do
   end
 
   describe 'accepting options' do
+    describe 'dry-run' do
+      it 'sets dry-run for -d' do
+        run '. -d'
+        config.dry_run?.should == true
+      end
+
+      it 'sets dry-run for --dry-run' do
+        run '. --dry-run'
+        config.dry_run?.should == true
+      end
+
+      it 'turns dry run off for --no-dry-run' do
+        run '. --no-dry-run'
+        config.dry_run?.should == false
+      end
+
+      it 'defaults dry run to off' do
+        run '.'
+        config.dry_run?.should == false
+      end
+    end
+
     describe 'quiet' do
       it 'sets quiet for -q' do
         run '. -q'

@@ -1,4 +1,5 @@
 # coding: utf-8
+# rubocop:disable MethodLength, SymbolName
 
 require 'trollop'
 
@@ -11,9 +12,25 @@ module Dockerize
         opts[:quiet]
       end
 
+      def dry_run?
+        opts[:'dry-run']
+      end
+
       def parse(args)
         @opts = Trollop.options(args) do
-          opt :quiet, 'Silence output', type: :flag, short: 'q', default: false
+          # -q/--quiet
+          opt :quiet,
+              'Silence output',
+              type: :flag,
+              short: 'q',
+              default: false
+
+          # -d/--dry-run
+          opt :'dry-run',
+              'Dry run, do not write any files',
+              type: :flag,
+              short: 'd',
+              default: false
         end
         self.project_dir = args[0]
       end
