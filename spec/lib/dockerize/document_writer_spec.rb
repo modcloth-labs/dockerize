@@ -83,6 +83,15 @@ describe Dockerize::DocumentWriter do
           File.size("#{tmp}/#{filename}").should == 5
         end
       end
+
+      it 'creates the file path leading up to the document' do
+        tmpdir do |tmp|
+          run tmp
+          writer.stub(:document_name).and_return('foo_dir/foo_file')
+          writer.write('12345')
+          File.directory?("#{tmp}/foo_dir").should == true
+        end
+      end
     end
   end
 end

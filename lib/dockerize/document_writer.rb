@@ -1,5 +1,7 @@
 # coding: utf-8
 
+require 'fileutils'
+
 module Dockerize
   class DocumentWriter
     # i/o stream
@@ -19,11 +21,22 @@ module Dockerize
 
     # end
 
+    def write(contents, stream = $out)
+      ensure_containing_dir
+      _do_write(contents, stream)
+    end
+
     def output_target
       "#{Dockerize::Config.project_dir}/#{document_name}"
     end
 
-    def write(contents, stream = $out)
+    private
+
+    def ensure_containing_dir(target = output_target)
+      FileUtils.mkdir_p(File.dirname(target))
+    end
+
+    def _do_write(contents, stream = $out)
       stream = File.open(output_target, 'w') unless Dockerize::Config.dry_run?
       stream.print contents
     ensure
