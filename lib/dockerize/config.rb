@@ -26,7 +26,21 @@ module Dockerize
               short: 'd',
               default: false
 
-          config.send(:opts=, self.parse(args))
+          # -f/--force
+          opt :force,
+              'Force existing files to be overwritten',
+              type: :flag,
+              sort: 'f',
+              default: false
+
+          # -b/--backup
+          opt :backup,
+              'Creates .bak version of files before overwriting them',
+              type: :flag,
+              sort: 'b',
+              default: false
+
+          config.send(:opts=, parse(args))
           config.send(:generate_accessor_methods, self)
         end
 
@@ -63,8 +77,12 @@ module Dockerize
         _for_flags(parser.specs.select do |k, v|
           Trollop::Parser::FLAG_TYPES.include?(v[:type])
         end)
-
       end
+
+      #################################################################
+      # method generation methods for different types of command line #
+      # arguments                                                     #
+      #################################################################
 
       def _for_flags(args = {})
         args.map do |k, _|

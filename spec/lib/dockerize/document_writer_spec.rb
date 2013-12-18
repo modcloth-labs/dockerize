@@ -27,6 +27,96 @@ describe Dockerize::DocumentWriter do
     end
   end
 
+  describe 'determining if the file should be written' do
+    let(:filename) { 'foo_file' }
+    let(:backup_filename) { 'foo_file.bak' }
+    let(:content) { '12345' }
+
+    before(:each) { writer.stub(:document_name).and_return(filename) }
+
+    context 'without force' do
+      context 'the file already exists' do
+        it 'does not modify the existing file' do
+          tmpdir do |tmp|
+            file_path = "#{tmp}/#{filename}"
+            FileUtils.touch(file_path)
+            run "#{tmp} --no-force"
+            expect { writer.write(content) }.to_not change {
+              File::Stat.new(file_path).inspect
+            }
+          end
+        end
+      end
+
+      context 'the file does not already exist' do
+        it 'creates the file' do
+          tmpdir do |tmp|
+            file_path = "#{tmp}/#{filename}"
+            run "#{tmp} --no-force"
+            expect { writer.write(content) }.to change {
+              File.exists?(file_path)
+            }
+          end
+        end
+      end
+    end
+
+    context 'with force' do
+      context 'the file already exists' do
+        it 'modifies the file' do
+          tmpdir do |tmp|
+            file_path = "#{tmp}/#{filename}"
+            run "#{tmp} --force"
+            FileUtils.touch(file_path)
+            expect { writer.write(content) }.to change {
+              File::Stat.new(file_path).inspect
+            }
+          end
+        end
+
+        context 'backup option is specified' do
+          it 'creates a backup file' do
+            tmpdir do |tmp|
+              file_path = "#{tmp}/#{filename}"
+              backup_path = "#{tmp}/#{backup_filename}"
+              run "#{tmp} --force --backup"
+              FileUtils.touch(file_path)
+              expect { writer.write(content) }.to change {
+                File.exists?(backup_path)
+              }
+            end
+          end
+        end
+
+        context 'backup option is not specified' do
+          it 'does not create create a backup file' do
+            tmpdir do |tmp|
+              file_path = "#{tmp}/#{filename}"
+              backup_path = "#{tmp}/#{backup_filename}"
+              run "#{tmp} --force"
+              FileUtils.touch(file_path)
+              expect { writer.write(content) }.to_not change {
+                File.exists?(backup_path)
+              }
+            end
+          end
+        end
+      end
+
+      context 'the file does not already exist' do
+        it 'creates the file' do
+          tmpdir do |tmp|
+            file_path = "#{tmp}/#{filename}"
+            run "#{tmp} --force"
+            expect { writer.write(content) }.to change {
+              File.exists?(file_path)
+            }
+          end
+        end
+      end
+    end
+  end
+
   describe 'writing' do
     let(:filename) { 'foo_file' }
     before(:each) { writer.stub(:document_name).and_return(filename) }

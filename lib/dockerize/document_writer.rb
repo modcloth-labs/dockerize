@@ -13,17 +13,14 @@ module Dockerize
     # template location
     # write to file, stdout, nil
 
-    # def should_write?
-      # force? || !preexisting_file?
-    # end
-
     # def should_backup?
 
     # end
 
     def write(contents, stream = $out)
       ensure_containing_dir
-      _do_write(contents, stream)
+      _do_backup if should_backup?
+      _do_write(contents, stream) if should_write?
     end
 
     def output_target
@@ -31,6 +28,18 @@ module Dockerize
     end
 
     private
+
+    def should_backup?
+      Dockerize::Config.backup? && preexisting_file?
+    end
+
+    def should_write?
+      Dockerize::Config.force? || !preexisting_file?
+    end
+
+    def preexisting_file?
+      File.exists?(output_target)
+    end
 
     def ensure_containing_dir(target = output_target)
       FileUtils.mkdir_p(File.dirname(target))
@@ -41,6 +50,10 @@ module Dockerize
       stream.print contents
     ensure
       stream.close unless stream == $out
+    end
+
+    def _do_backup
+      FileUtils.cp(output_target, "#{output_target}.bak")
     end
 
     def document_name
