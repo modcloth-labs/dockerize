@@ -1,5 +1,5 @@
 # coding: utf-8
-# rubocop:disable MethodLength, SymbolName
+# rubocop:disable MethodLength
 
 require 'trollop'
 
@@ -8,16 +8,10 @@ module Dockerize
     class << self
       attr_reader :project_dir
 
-      def quiet?
-        opts[:quiet]
-      end
-
-      def dry_run?
-        opts[:'dry-run']
-      end
-
       def parse(args)
-        @opts = Trollop.options(args) do
+        config = self
+
+        Trollop.options(args) do
           # -q/--quiet
           opt :quiet,
               'Silence output',
@@ -26,12 +20,16 @@ module Dockerize
               default: false
 
           # -d/--dry-run
-          opt :'dry-run',
+          opt :dry_run,
               'Dry run, do not write any files',
               type: :flag,
               short: 'd',
               default: false
+
+          config.send(:opts=, self.parse(args))
+          config.send(:generate_accessor_methods, self)
         end
+
         self.project_dir = args[0]
       end
 
@@ -51,7 +49,30 @@ module Dockerize
 
       private
 
-      attr_reader :opts
+      attr_accessor :opts
+
+      def klass
+        @klass ||= class << self ; self ; end
+      end
+
+      def add_method(name, &block)
+        klass.send(:define_method, name.to_sym, &block)
+      end
+
+      def generate_accessor_methods(parser)
+        _for_flags(parser.specs.select do |k, v|
+          Trollop::Parser::FLAG_TYPES.include?(v[:type])
+        end)
+
+      end
+
+      def _for_flags(args = {})
+        args.map do |k, _|
+          add_method("#{k}?") do
+            @opts[k]
+          end
+        end
+      end
     end
   end
 end
