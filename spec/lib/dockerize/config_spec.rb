@@ -121,9 +121,9 @@ describe Dockerize::Config do
         config.backup?.should == false
       end
 
-      it 'sets no backup when when specified' do
+      it 'sets backup when when specified' do
         run '.'
-        config.backup?.should == false
+        config.backup?.should == true
       end
     end
   end

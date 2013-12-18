@@ -38,7 +38,7 @@ module Dockerize
               'Creates .bak version of files before overwriting them',
               type: :flag,
               sort: 'b',
-              default: false
+              default: true
 
           config.send(:opts=, parse(args))
           config.send(:generate_accessor_methods, self)

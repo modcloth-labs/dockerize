@@ -88,12 +88,12 @@ describe Dockerize::DocumentWriter do
           end
         end
 
-        context 'backup option is not specified' do
+        context '--no-backup option is specified' do
           it 'does not create create a backup file' do
             tmpdir do |tmp|
               file_path = "#{tmp}/#{filename}"
               backup_path = "#{tmp}/#{backup_filename}"
-              run "#{tmp} --force"
+              run "#{tmp} --force --no-backup"
               FileUtils.touch(file_path)
               expect { writer.write(content) }.to_not change {
                 File.exists?(backup_path)
