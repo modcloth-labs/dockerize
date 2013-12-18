@@ -5,4 +5,5 @@ module Dockerize
   autoload :VERSION, 'dockerize/version'
   autoload :Cli, 'dockerize/cli'
   autoload :Config, 'dockerize/config'
+  autoload :Error, 'dockerize/error'
 end

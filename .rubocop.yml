@@ -1,3 +1,6 @@
 ---
 Documentation:
   Enabled: false
+
+GlobalVars:
+  Enabled: false
