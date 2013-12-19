@@ -159,5 +159,12 @@ describe Dockerize::Config do
         end
       end
     end
+
+    describe 'template_dir' do
+      it 'sets the default template dir to the top level' do
+        run '.'
+        config.template_dir.should == "#{top}/templates"
+      end
+    end
   end
 end

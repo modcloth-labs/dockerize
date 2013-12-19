@@ -1,5 +1,5 @@
 # coding: utf-8
-# rubocop:disable MethodLength
+# rubocop:disable MethodLength, ClassLength
 
 require 'trollop'
 
@@ -13,47 +13,45 @@ module Dockerize
 
         Trollop.options(args) do
           # -q/--quiet
-          opt :quiet,
-              'Silence output',
-              type: :flag,
-              short: 'q',
-              default: false
+          opt :quiet, 'Silence output', type: :flag, short: 'q', default: false
 
           # -d/--dry-run
-          opt :dry_run,
-              'Dry run, do not write any files',
+          opt :dry_run, 'Dry run, do not write any files',
               type: :flag,
               short: 'd',
               default: false
 
           # -f/--force
-          opt :force,
-              'Force existing files to be overwritten',
+          opt :force, 'Force existing files to be overwritten',
               type: :flag,
               short: 'f',
               default: false
 
           # -b/--backup
-          opt :backup,
-              'Creates .bak version of files before overwriting them',
+          opt :backup, 'Creates .bak version of files before overwriting them',
               type: :flag,
               short: 'b',
               default: true
 
           # -r/--registry
-          opt :registry,
-              'The Docker registry to use when writing files. ' <<
+          opt :registry, 'The Docker registry to use when writing files. ' <<
                 'Example: quay.io/modcloth',
               type: :string,
               short: 'r',
               default: 'quay.io/modcloth'
 
           # -p/--project-name
-          opt :project_name,
-              'The name of the current project',
+          opt :project_name, 'The name of the current project',
               type: :string,
               short: 'p',
               default: nil
+
+          ## -t/--template-dir
+          opt :template_dir,
+              'The directory containing the templates to be written',
+              type: :string,
+              short: 't',
+              default: "#{config.top}/templates"
 
           version "dockerize #{Dockerize::VERSION}"
 
@@ -99,6 +97,10 @@ module Dockerize
 
       def set_project_name
         opts[:project_name] ||= File.basename(project_dir)
+      end
+
+      def top
+        @top ||= Gem::Specification.find_by_name('dockerize').gem_dir
       end
 
       private

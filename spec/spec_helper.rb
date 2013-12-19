@@ -36,3 +36,7 @@ unless RUBY_PLATFORM == 'java'
     Pry.config.send(:"#{k}=", v)
   end
 end
+
+def top
+  @top ||= File.expand_path('..', File.dirname(__FILE__))
+end
