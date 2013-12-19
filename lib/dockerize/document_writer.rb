@@ -27,7 +27,7 @@ module Dockerize
       $out.puts '     ' << type <<  document_name
     end
 
-    private
+    protected
 
     def status_word
       if !should_write?
