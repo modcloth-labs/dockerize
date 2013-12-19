@@ -4,6 +4,10 @@ require 'fileutils'
 
 module Dockerize
   class DocumentWriter
+    CREATE_WORD = 'created '.green
+    REPLACE_WORD = 'replaced '.red
+    IGNORE_WORD = 'ignored '.yellow
+
     # printing informative output
     # read, write
     # template location
@@ -11,11 +15,26 @@ module Dockerize
     def write(contents, stream = $out)
       ensure_containing_dir
       _do_backup if should_backup?
+      inform_of_write(create_word)
       _do_write(contents, stream) if should_write?
     end
 
     def output_target
       "#{Dockerize::Config.project_dir}/#{document_name}"
+    end
+
+    def create_word
+      if !should_write?
+        IGNORE_WORD
+      elsif preexisting_file?
+        REPLACE_WORD
+      else
+        CREATE_WORD
+      end
+    end
+
+    def inform_of_write(type)
+      $out.puts '     ' << type <<  document_name
     end
 
     private

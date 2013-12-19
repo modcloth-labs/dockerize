@@ -1,6 +1,10 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
+vendor = File.expand_path('../vendor', __FILE__)
+
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+$LOAD_PATH.unshift(vendor) unless $LOAD_PATH.include?(vendor)
+
 require 'dockerize/version'
 
 Gem::Specification.new do |gem|

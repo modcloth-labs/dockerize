@@ -46,6 +46,18 @@ describe Dockerize::DocumentWriter do
             }
           end
         end
+
+        it 'marks the file as ignored' do
+          tmpdir do |tmp|
+            file_path = "#{tmp}/#{filename}"
+            FileUtils.touch(file_path)
+            run "#{tmp} --no-force"
+            writer.should_receive(:inform_of_write).with(
+              Dockerize::DocumentWriter::IGNORE_WORD
+            )
+            writer.write(content)
+          end
+        end
       end
 
       context 'the file does not already exist' do
@@ -56,6 +68,16 @@ describe Dockerize::DocumentWriter do
             expect { writer.write(content) }.to change {
               File.exists?(file_path)
             }
+          end
+        end
+
+        it 'marks the file as created' do
+          tmpdir do |tmp|
+            run "#{tmp} --no-force"
+            writer.should_receive(:inform_of_write).with(
+              Dockerize::DocumentWriter::CREATE_WORD
+            )
+            writer.write(content)
           end
         end
       end
@@ -71,6 +93,17 @@ describe Dockerize::DocumentWriter do
             expect { writer.write(content) }.to change {
               File::Stat.new(file_path).inspect
             }
+          end
+        end
+
+        it 'marks the file as replaced' do
+          tmpdir do |tmp|
+            run "#{tmp} --force"
+            FileUtils.touch("#{tmp}/#{filename}")
+            writer.should_receive(:inform_of_write).with(
+              Dockerize::DocumentWriter::REPLACE_WORD
+            )
+            writer.write(content)
           end
         end
 
@@ -111,6 +144,16 @@ describe Dockerize::DocumentWriter do
             expect { writer.write(content) }.to change {
               File.exists?(file_path)
             }
+          end
+        end
+
+        it 'marks the file as created' do
+          tmpdir do |tmp|
+            run "#{tmp} --force"
+            writer.should_receive(:inform_of_write).with(
+              Dockerize::DocumentWriter::CREATE_WORD
+            )
+            writer.write(content)
           end
         end
       end
