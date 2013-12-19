@@ -20,8 +20,9 @@ Gem::Specification.new do |gem|
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  gem.bindir        = 'bin'
   gem.test_files    = gem.files.grep(%r{^spec/})
-  gem.require_paths = %w(lib)
+  gem.require_paths = %w(lib vendor)
   gem.required_ruby_version = '>= 1.9.3'
 
   gem.add_development_dependency 'rake'
@@ -30,6 +31,4 @@ Gem::Specification.new do |gem|
 
   gem.add_development_dependency 'pry' unless RUBY_PLATFORM == 'java'
   gem.add_development_dependency 'simplecov' unless RUBY_PLATFORM == 'java'
-
-  gem.add_runtime_dependency 'trollop'
 end
