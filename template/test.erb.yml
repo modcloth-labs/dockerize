@@ -1,9 +1,0 @@
----
-title: Baxter the Dog
-filter: textile
----
-This is the first line
-
-This is the second line
-
-This has some erb <%= @foo %>
