@@ -80,5 +80,51 @@ describe Dockerize::Config do
         config.quiet?.should == false
       end
     end
+
+    describe 'force' do
+      it 'sets force for -f' do
+        run '. -f'
+        config.force?.should == true
+      end
+
+      it 'sets force for --force' do
+        run '. --force'
+        config.force?.should == true
+
+      end
+
+      it 'sets no force for --no-force' do
+        run '. --no-force'
+        config.force?.should == false
+      end
+
+      it 'sets no force when when specified' do
+        run '.'
+        config.force?.should == false
+      end
+    end
+
+    describe 'backup' do
+      it 'sets backup for -b' do
+        run '. -b'
+        config.backup?.should == true
+      end
+
+      it 'sets backup for --backup' do
+        run '. --backup'
+        config.backup?.should == true
+
+      end
+
+      it 'sets no backup for --no-backup' do
+        run '. --no-backup'
+        config.backup?.should == false
+      end
+
+      it 'sets backup when when specified' do
+        run '.'
+        config.backup?.should == true
+      end
+    end
   end
 end

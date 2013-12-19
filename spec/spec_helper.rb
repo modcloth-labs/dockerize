@@ -3,6 +3,7 @@
 require 'rubygems'
 require 'bundler/setup'
 require 'simplecov' unless RUBY_PLATFORM == 'java'
+require 'pry' unless RUBY_PLATFORM == 'java'
 require 'tmpdir'
 
 def tmpdir(&block)
@@ -25,5 +26,14 @@ RSpec.configure do |config|
   config.before(:each) do
     $stdout.stub(:print)
     $stdout.stub(:puts)
+  end
+end
+
+unless RUBY_PLATFORM == 'java'
+  {
+    output: $stdout.clone,
+    prompt_name: 'dockerize',
+  }.map do |k, v|
+    Pry.config.send(:"#{k}=", v)
   end
 end
