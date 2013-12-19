@@ -14,9 +14,9 @@ module Dockerize
 
     def write(contents, stream = $out)
       ensure_containing_dir
-      _do_backup if should_backup?
+      do_backup! if should_backup?
       inform_of_write(create_word)
-      _do_write(contents, stream) if should_write?
+      do_write!(contents, stream) if should_write?
     end
 
     def output_target
@@ -55,14 +55,14 @@ module Dockerize
       FileUtils.mkdir_p(File.dirname(target))
     end
 
-    def _do_write(contents, stream = $out)
+    def do_write!(contents, stream = $out)
       stream = File.open(output_target, 'w') unless Dockerize::Config.dry_run?
       stream.print contents
     ensure
       stream.close unless stream == $out
     end
 
-    def _do_backup
+    def do_backup!
       FileUtils.cp(output_target, "#{output_target}.bak")
     end
 
