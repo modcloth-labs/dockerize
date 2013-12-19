@@ -4,18 +4,9 @@ require 'fileutils'
 
 module Dockerize
   class DocumentWriter
-    # i/o stream
-    # dry run options to print to standard out instead of writing to file
-    # force to replace file if it already exists
     # printing informative output
     # read, write
-    # filename
     # template location
-    # write to file, stdout, nil
-
-    # def should_backup?
-
-    # end
 
     def write(contents, stream = $out)
       ensure_containing_dir
