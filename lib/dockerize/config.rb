@@ -94,20 +94,12 @@ module Dockerize
       end
 
       def generate_accessor_methods(parser)
-        _for_flags(parser.specs.select do |k, v|
-          Trollop::Parser::FLAG_TYPES.include?(v[:type])
-        end)
-      end
-
-      #################################################################
-      # method generation methods for different types of command line #
-      # arguments                                                     #
-      #################################################################
-
-      def _for_flags(args = {})
-        args.map do |k, _|
-          add_method("#{k}?") do
-            @opts[k]
+        parser.specs.map do |k, v|
+          case v[:type]
+          when *Trollop::Parser::FLAG_TYPES
+            add_method("#{k}?") { @opts[k] }
+          when :string
+            add_method("#{k}") { @opts[k] }
           end
         end
       end
