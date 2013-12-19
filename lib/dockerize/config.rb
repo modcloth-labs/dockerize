@@ -30,14 +30,14 @@ module Dockerize
           opt :force,
               'Force existing files to be overwritten',
               type: :flag,
-              sort: 'f',
+              short: 'f',
               default: false
 
           # -b/--backup
           opt :backup,
               'Creates .bak version of files before overwriting them',
               type: :flag,
-              sort: 'b',
+              short: 'b',
               default: true
 
           version "dockerize #{Dockerize::VERSION}"
