@@ -122,5 +122,42 @@ describe Dockerize::Config do
         config.backup?.should == true
       end
     end
+
+    describe 'registry' do
+      let(:registry) { 'foo' }
+
+      %w(-r --registry).each do |arg|
+        it "sets registry for #{arg}" do
+          run ". #{arg} #{registry}"
+          config.registry.should == registry
+        end
+      end
+
+      it 'sets modcloth registry by default' do
+        run '.'
+        config.registry.should == 'quay.io/modcloth'
+      end
+    end
+
+    describe 'project_name' do
+      let(:project_name) { 'baz' }
+      let(:subdir) { 'foobarbaz' }
+
+      %w(-p --project-name).each do |arg|
+        it "sets project name for #{arg}" do
+          run ". #{arg} #{project_name}"
+          config.project_name.should == project_name
+        end
+      end
+
+      it 'sets the default to the project directory name' do
+        tmpdir do |tmp|
+          project_dir = "#{tmp}/#{subdir}"
+          FileUtils.mkdir_p(project_dir)
+          run project_dir
+          config.project_name.should == subdir
+        end
+      end
+    end
   end
 end

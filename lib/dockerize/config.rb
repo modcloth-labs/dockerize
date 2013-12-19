@@ -40,6 +40,21 @@ module Dockerize
               short: 'b',
               default: true
 
+          # -r/--registry
+          opt :registry,
+              'The Docker registry to use when writing files. ' <<
+                'Example: quay.io/modcloth',
+              type: :string,
+              short: 'r',
+              default: 'quay.io/modcloth'
+
+          # -p/--project-name
+          opt :project_name,
+              'The name of the current project',
+              type: :string,
+              short: 'p',
+              default: nil
+
           version "dockerize #{Dockerize::VERSION}"
 
           begin
@@ -60,6 +75,7 @@ module Dockerize
         end
 
         self.project_dir = args[0]
+        set_project_name unless opts[:project_name]
       end
 
       def project_dir=(dir)
@@ -79,6 +95,10 @@ module Dockerize
         else
           @project_dir = expanded_dir
         end
+      end
+
+      def set_project_name
+        opts[:project_name] ||= File.basename(project_dir)
       end
 
       private
