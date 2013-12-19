@@ -104,6 +104,20 @@ describe Dockerize::Config do
       end
     end
 
+    describe 'version' do
+      let(:version) { Dockerize::VERSION }
+
+      it 'prints the version with -v' do
+        $stderr.should_receive(:puts).with("dockerize #{version}")
+        expect { run '-v' }.to raise_error(SystemExit)
+      end
+
+      it 'prints the version with --version' do
+        $stderr.should_receive(:puts).with("dockerize #{version}")
+        expect { run '--version' }.to raise_error(SystemExit)
+      end
+    end
+
     describe 'backup' do
       it 'sets backup for -b' do
         run '. -b'

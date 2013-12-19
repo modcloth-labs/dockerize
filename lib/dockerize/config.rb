@@ -40,6 +40,8 @@ module Dockerize
               sort: 'b',
               default: true
 
+          version "dockerize #{Dockerize::VERSION}"
+
           begin
             config.send(:opts=, parse(args))
           rescue Trollop::CommandlineError => e
@@ -50,7 +52,7 @@ module Dockerize
             educate
             exit
           rescue Trollop::VersionNeeded
-            version
+            $stderr.puts version
             exit
           end
 
