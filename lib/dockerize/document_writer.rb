@@ -15,7 +15,7 @@ module Dockerize
     def write(contents, stream = $out)
       ensure_containing_dir
       do_backup! if should_backup?
-      inform_of_write(create_word)
+      inform_of_write(status_word)
       do_write!(contents, stream) if should_write?
     end
 
@@ -23,7 +23,13 @@ module Dockerize
       "#{Dockerize::Config.project_dir}/#{document_name}"
     end
 
-    def create_word
+    def inform_of_write(type)
+      $out.puts '     ' << type <<  document_name
+    end
+
+    private
+
+    def status_word
       if !should_write?
         IGNORE_WORD
       elsif preexisting_file?
@@ -32,12 +38,6 @@ module Dockerize
         CREATE_WORD
       end
     end
-
-    def inform_of_write(type)
-      $out.puts '     ' << type <<  document_name
-    end
-
-    private
 
     def should_backup?
       Dockerize::Config.backup? && preexisting_file?
