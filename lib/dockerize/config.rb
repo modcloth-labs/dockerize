@@ -40,7 +40,20 @@ module Dockerize
               sort: 'b',
               default: true
 
-          config.send(:opts=, parse(args))
+          begin
+            config.send(:opts=, parse(args))
+          rescue Trollop::CommandlineError => e
+            $stderr.puts "Error: #{e.message}."
+            $stderr.puts 'Try --help for help.'
+            exit 1
+          rescue Trollop::HelpNeeded
+            educate
+            exit
+          rescue Trollop::VersionNeeded
+            version
+            exit
+          end
+
           config.send(:generate_accessor_methods, self)
         end
 
@@ -48,6 +61,11 @@ module Dockerize
       end
 
       def project_dir=(dir)
+        unless dir
+          fail Dockerize::Error::UnspecifiedProjectDirectory,
+               'You must specify a project directory'
+        end
+
         expanded_dir = File.expand_path(dir)
 
         if !File.exists?(expanded_dir)

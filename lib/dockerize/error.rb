@@ -6,6 +6,7 @@ module Dockerize
     InvalidConfig = Class.new(StandardError)
     NonexistentProjectDirectory = Class.new(InvalidConfig)
     InvalidProjectDirectory = Class.new(InvalidConfig)
+    UnspecifiedProjectDirectory = Class.new(InvalidConfig)
 
     # General Errors
     MissingRequiredArgument = Class.new(ArgumentError)
