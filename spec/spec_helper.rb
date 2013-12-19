@@ -14,13 +14,11 @@ def tmpdir(&block)
 end
 
 def run(cmd = [])
-  if cmd.class == String
-    Dockerize::Cli.run(cmd.split(' '))
-  elsif cmd.class == Array
-    Dockerize::Cli.run(cmd)
-  else
-    fail 'Invalid command'
-  end
+  cmd = cmd.split(' ') if cmd.class == String
+  Dockerize::Cli.send(:args=, cmd)
+  Dockerize::Cli.send(:ensure_project_dir)
+  Dockerize::Config.parse(cmd)
+  Dockerize::Cli.send(:set_out_stream)
 end
 
 RSpec.configure do |config|
