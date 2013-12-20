@@ -1,7 +1,14 @@
 # coding: utf-8
 
 require 'yaml'
+
 YAML::ENGINE.yamler = 'syck'
+YAML_PARSER = YAML
+
+if RUBY_VERSION.split('.').first.to_i >= 2
+  require 'syck'
+  YAML_PARSER = Syck
+end
 
 module Dockerize
   class FromTemplate < Dockerize::DocumentWriter
@@ -48,7 +55,7 @@ module Dockerize
     end
 
     def yaml_documents
-      @stream ||= YAML.load_stream(raw_content)
+      @stream ||= YAML_PARSER.load_stream(raw_content)
       @yaml_documents ||= {
         metadata: @stream.documents[0],
         content: @stream.documents[1],
