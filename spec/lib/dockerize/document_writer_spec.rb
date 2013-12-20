@@ -4,7 +4,7 @@ require 'dockerize/document_writer'
 require 'fileutils'
 
 describe Dockerize::DocumentWriter do
-  subject(:writer) { described_class.new }
+  let(:writer) { described_class.new }
 
   describe 'determining file path to write' do
     context 'no document_name is specified' do
@@ -162,7 +162,7 @@ describe Dockerize::DocumentWriter do
 
   describe 'writing' do
     let(:filename) { 'foo_file' }
-    before(:each) { writer.stub(:document_name).and_return(filename) }
+    let(:writer) { described_class.new(filename) }
 
     context 'dry run' do
       it 'writes to standard out' do
