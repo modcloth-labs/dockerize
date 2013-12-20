@@ -7,6 +7,7 @@ module Dockerize
   class Config
     class << self
       attr_reader :project_dir
+      attr_accessor :opts
 
       def parse(args)
         config = self
@@ -69,6 +70,7 @@ module Dockerize
             exit
           end
 
+          config.send(:opts)[:top] = top
           config.send(:generate_accessor_methods, self)
         end
 
@@ -104,8 +106,6 @@ module Dockerize
       end
 
       private
-
-      attr_accessor :opts
 
       def klass
         @klass ||= class << self ; self ; end

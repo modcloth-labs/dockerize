@@ -38,7 +38,7 @@ module Dockerize
     private
 
     def template_vars
-      {}.merge(yaml_metadata)
+      Dockerize::Config.opts.merge(yaml_metadata)
     end
 
     def parse_erb(raw, hash)
