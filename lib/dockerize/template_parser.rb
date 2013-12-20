@@ -31,9 +31,13 @@ module Dockerize
       yaml_metadata['filename']
     end
 
+    def executable?
+      yaml_metadata['executable'] == true ? true : false
+    end
+
     def write_with(writer)
       writer.document_name = document_name
-      writer.write(parsed_erb)
+      writer.write(parsed_erb, executable?)
     end
 
     private

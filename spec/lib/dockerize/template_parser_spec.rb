@@ -10,6 +10,7 @@ describe Dockerize::TemplateParser do
     filename: '#{filename}'
     filter: 'Baxter the Dog'
     foo: 'pasta'
+    executable: true
     ---
     content: |
       This is the first line
@@ -42,6 +43,7 @@ describe Dockerize::TemplateParser do
           'filename' => filename,
           'filter' => 'Baxter the Dog',
           'foo' => 'pasta',
+          'executable' => true
         }
       end
 
@@ -80,6 +82,14 @@ describe Dockerize::TemplateParser do
         run tmp
         parser.write_with writer
         File.read("#{tmp}/#{filename}").should == parsed_contents
+      end
+    end
+
+    it 'makes the file executable' do
+      tmpdir do |tmp|
+        run tmp
+        parser.write_with writer
+        File.executable?("#{tmp}/#{filename}").should == true
       end
     end
   end
