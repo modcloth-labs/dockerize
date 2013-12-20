@@ -47,12 +47,19 @@ module Dockerize
               short: 'p',
               default: nil
 
-          ## -t/--template-dir
+          # -t/--template-dir
           opt :template_dir,
               'The directory containing the templates to be written',
               type: :string,
               short: 't',
               default: "#{config.top}/templates"
+
+          # -m/--maintainer
+          opt :maintainer,
+              'The default maintainer to use for any Dockerfiles written',
+              type: :string,
+              short: 'm',
+              default: 'I am having an identity crisis'
 
           version "dockerize #{Dockerize::VERSION}"
 
