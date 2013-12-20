@@ -1,8 +1,8 @@
 # coding: utf-8
 
-require 'dockerize/document_writer_from_template'
+require 'dockerize/template_parser'
 
-describe Dockerize::DocumentWriterFromTemplate do
+describe Dockerize::TemplateParser do
   # set up template context from config & Config
   # render the template
   # get the output file name from the template
