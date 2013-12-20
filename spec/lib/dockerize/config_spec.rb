@@ -37,14 +37,11 @@ describe Dockerize::Config do
 
   describe 'accepting options' do
     describe 'dry-run' do
-      it 'sets dry-run for -d' do
-        run '. -d'
-        config.dry_run?.should == true
-      end
-
-      it 'sets dry-run for --dry-run' do
-        run '. --dry-run'
-        config.dry_run?.should == true
+      %w(-d --dry-run).each do |arg|
+        it "sets dry-run for #{arg}" do
+          run ". #{arg}"
+          config.dry_run?.should == true
+        end
       end
 
       it 'turns dry run off for --no-dry-run' do
@@ -59,15 +56,11 @@ describe Dockerize::Config do
     end
 
     describe 'quiet' do
-      it 'sets quiet for -q' do
-        run '. -q'
-        config.quiet?.should == true
-      end
-
-      it 'sets quiet for --quiet' do
-        run '. --quiet'
-        config.quiet?.should == true
-
+      %w(-q --quiet).each do |arg|
+        it "sets quiet for #{arg}" do
+          run ". #{arg}"
+          config.quiet?.should == true
+        end
       end
 
       it 'sets no quiet for --no-quiet' do
@@ -82,15 +75,11 @@ describe Dockerize::Config do
     end
 
     describe 'force' do
-      it 'sets force for -f' do
-        run '. -f'
-        config.force?.should == true
-      end
-
-      it 'sets force for --force' do
-        run '. --force'
-        config.force?.should == true
-
+      %w(-f --force).each do |arg|
+        it "sets force for #{arg}" do
+          run ". #{arg}"
+          config.force?.should == true
+        end
       end
 
       it 'sets no force for --no-force' do
@@ -104,16 +93,23 @@ describe Dockerize::Config do
       end
     end
 
-    describe 'backup' do
-      it 'sets backup for -b' do
-        run '. -b'
-        config.backup?.should == true
+    describe 'version' do
+      let(:version) { Dockerize::VERSION }
+
+      %w(-v --version).each do |arg|
+        it "prints the version with #{arg}" do
+          $stderr.should_receive(:puts).with("dockerize #{version}")
+          expect { run arg }.to raise_error(SystemExit)
+        end
       end
+    end
 
-      it 'sets backup for --backup' do
-        run '. --backup'
-        config.backup?.should == true
-
+    describe 'backup' do
+      %w(-b --backup).each do |arg|
+        it "sets backup for #{arg}" do
+          run ". #{arg}"
+          config.backup?.should == true
+        end
       end
 
       it 'sets no backup for --no-backup' do
@@ -121,9 +117,53 @@ describe Dockerize::Config do
         config.backup?.should == false
       end
 
-      it 'sets backup when when specified' do
+      it 'sets backup by default' do
         run '.'
         config.backup?.should == true
+      end
+    end
+
+    describe 'registry' do
+      let(:registry) { 'foo' }
+
+      %w(-r --registry).each do |arg|
+        it "sets registry for #{arg}" do
+          run ". #{arg} #{registry}"
+          config.registry.should == registry
+        end
+      end
+
+      it 'sets modcloth registry by default' do
+        run '.'
+        config.registry.should == 'quay.io/modcloth'
+      end
+    end
+
+    describe 'project_name' do
+      let(:project_name) { 'baz' }
+      let(:subdir) { 'foobarbaz' }
+
+      %w(-p --project-name).each do |arg|
+        it "sets project name for #{arg}" do
+          run ". #{arg} #{project_name}"
+          config.project_name.should == project_name
+        end
+      end
+
+      it 'sets the default to the project directory name' do
+        tmpdir do |tmp|
+          project_dir = "#{tmp}/#{subdir}"
+          FileUtils.mkdir_p(project_dir)
+          run project_dir
+          config.project_name.should == subdir
+        end
+      end
+    end
+
+    describe 'template_dir' do
+      it 'sets the default template dir to the top level' do
+        run '.'
+        config.template_dir.should == "#{top}/templates"
       end
     end
   end

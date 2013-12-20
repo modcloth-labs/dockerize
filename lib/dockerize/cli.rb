@@ -14,6 +14,8 @@ module Dockerize
 
       private
 
+      attr_writer :args
+
       def set_out_stream
         $out = $stdout
         $out = File.open('/dev/null', 'w') if Dockerize::Config.quiet?

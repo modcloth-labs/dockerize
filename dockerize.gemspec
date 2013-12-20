@@ -1,6 +1,10 @@
 # coding: utf-8
 lib = File.expand_path('../lib', __FILE__)
+vendor = File.expand_path('../vendor', __FILE__)
+
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+$LOAD_PATH.unshift(vendor) unless $LOAD_PATH.include?(vendor)
+
 require 'dockerize/version'
 
 Gem::Specification.new do |gem|
@@ -16,8 +20,9 @@ Gem::Specification.new do |gem|
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  gem.bindir        = 'bin'
   gem.test_files    = gem.files.grep(%r{^spec/})
-  gem.require_paths = %w(lib)
+  gem.require_paths = %w(lib vendor)
   gem.required_ruby_version = '>= 1.9.3'
 
   gem.add_development_dependency 'rake'
@@ -27,5 +32,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'pry' unless RUBY_PLATFORM == 'java'
   gem.add_development_dependency 'simplecov' unless RUBY_PLATFORM == 'java'
 
-  gem.add_runtime_dependency 'trollop'
+  gem.add_runtime_dependency 'syck' if RUBY_VERSION.split('.').first.to_i >= 2
 end

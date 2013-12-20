@@ -4,30 +4,40 @@ require 'fileutils'
 
 module Dockerize
   class DocumentWriter
-    # i/o stream
-    # dry run options to print to standard out instead of writing to file
-    # force to replace file if it already exists
+    CREATE_WORD = 'created '.green
+    REPLACE_WORD = 'replaced '.red
+    IGNORE_WORD = 'ignored '.yellow
+
     # printing informative output
     # read, write
-    # filename
     # template location
-    # write to file, stdout, nil
-
-    # def should_backup?
-
-    # end
 
     def write(contents, stream = $out)
       ensure_containing_dir
-      _do_backup if should_backup?
-      _do_write(contents, stream) if should_write?
+      do_backup! if should_backup?
+      inform_of_write(status_word)
+      do_write!(contents, stream) if should_write?
     end
 
     def output_target
       "#{Dockerize::Config.project_dir}/#{document_name}"
     end
 
-    private
+    def inform_of_write(type)
+      $out.puts '     ' << type <<  document_name
+    end
+
+    protected
+
+    def status_word
+      if !should_write?
+        IGNORE_WORD
+      elsif preexisting_file?
+        REPLACE_WORD
+      else
+        CREATE_WORD
+      end
+    end
 
     def should_backup?
       Dockerize::Config.backup? && preexisting_file?
@@ -45,14 +55,14 @@ module Dockerize
       FileUtils.mkdir_p(File.dirname(target))
     end
 
-    def _do_write(contents, stream = $out)
+    def do_write!(contents, stream = $out)
       stream = File.open(output_target, 'w') unless Dockerize::Config.dry_run?
       stream.print contents
     ensure
       stream.close unless stream == $out
     end
 
-    def _do_backup
+    def do_backup!
       FileUtils.cp(output_target, "#{output_target}.bak")
     end
 

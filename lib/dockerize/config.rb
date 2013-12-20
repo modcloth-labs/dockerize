@@ -1,5 +1,5 @@
 # coding: utf-8
-# rubocop:disable MethodLength
+# rubocop:disable MethodLength, ClassLength
 
 require 'trollop'
 
@@ -7,47 +7,83 @@ module Dockerize
   class Config
     class << self
       attr_reader :project_dir
+      attr_accessor :opts
 
       def parse(args)
         config = self
 
         Trollop.options(args) do
           # -q/--quiet
-          opt :quiet,
-              'Silence output',
-              type: :flag,
-              short: 'q',
-              default: false
+          opt :quiet, 'Silence output', type: :flag, short: 'q', default: false
 
           # -d/--dry-run
-          opt :dry_run,
-              'Dry run, do not write any files',
+          opt :dry_run, 'Dry run, do not write any files',
               type: :flag,
               short: 'd',
               default: false
 
           # -f/--force
-          opt :force,
-              'Force existing files to be overwritten',
+          opt :force, 'Force existing files to be overwritten',
               type: :flag,
-              sort: 'f',
+              short: 'f',
               default: false
 
           # -b/--backup
-          opt :backup,
-              'Creates .bak version of files before overwriting them',
+          opt :backup, 'Creates .bak version of files before overwriting them',
               type: :flag,
-              sort: 'b',
+              short: 'b',
               default: true
 
-          config.send(:opts=, parse(args))
+          # -r/--registry
+          opt :registry, 'The Docker registry to use when writing files. ' <<
+                'Example: quay.io/modcloth',
+              type: :string,
+              short: 'r',
+              default: 'quay.io/modcloth'
+
+          # -p/--project-name
+          opt :project_name, 'The name of the current project',
+              type: :string,
+              short: 'p',
+              default: nil
+
+          ## -t/--template-dir
+          opt :template_dir,
+              'The directory containing the templates to be written',
+              type: :string,
+              short: 't',
+              default: "#{config.top}/templates"
+
+          version "dockerize #{Dockerize::VERSION}"
+
+          begin
+            config.send(:opts=, parse(args))
+          rescue Trollop::CommandlineError => e
+            $stderr.puts "Error: #{e.message}."
+            $stderr.puts 'Try --help for help.'
+            exit 1
+          rescue Trollop::HelpNeeded
+            educate
+            exit
+          rescue Trollop::VersionNeeded
+            $stderr.puts version
+            exit
+          end
+
+          config.send(:opts)[:top] = top
           config.send(:generate_accessor_methods, self)
         end
 
         self.project_dir = args[0]
+        set_project_name unless opts[:project_name]
       end
 
       def project_dir=(dir)
+        unless dir
+          fail Dockerize::Error::UnspecifiedProjectDirectory,
+               'You must specify a project directory'
+        end
+
         expanded_dir = File.expand_path(dir)
 
         if !File.exists?(expanded_dir)
@@ -61,9 +97,15 @@ module Dockerize
         end
       end
 
-      private
+      def set_project_name
+        opts[:project_name] ||= File.basename(project_dir)
+      end
 
-      attr_accessor :opts
+      def top
+        @top ||= Gem::Specification.find_by_name('dockerize').gem_dir
+      end
+
+      private
 
       def klass
         @klass ||= class << self ; self ; end
@@ -74,20 +116,12 @@ module Dockerize
       end
 
       def generate_accessor_methods(parser)
-        _for_flags(parser.specs.select do |k, v|
-          Trollop::Parser::FLAG_TYPES.include?(v[:type])
-        end)
-      end
-
-      #################################################################
-      # method generation methods for different types of command line #
-      # arguments                                                     #
-      #################################################################
-
-      def _for_flags(args = {})
-        args.map do |k, _|
-          add_method("#{k}?") do
-            @opts[k]
+        parser.specs.map do |k, v|
+          case v[:type]
+          when *Trollop::Parser::FLAG_TYPES
+            add_method("#{k}?") { @opts[k] }
+          when :string
+            add_method("#{k}") { @opts[k] }
           end
         end
       end
