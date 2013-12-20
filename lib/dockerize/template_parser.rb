@@ -20,7 +20,11 @@ module Dockerize
     end
 
     def parsed_erb
-      @parsed_erb ||= parse_erb(yaml_content, template_vars)
+      @parsed_erb ||= begin
+                        parse_erb(yaml_content, template_vars)
+                      rescue Psych::SyntaxError, SyntaxError
+                        nil
+                      end
     end
 
     def document_name
@@ -28,6 +32,7 @@ module Dockerize
     end
 
     def write_with(writer)
+      writer.document_name = document_name
       writer.write(parsed_erb)
     end
 

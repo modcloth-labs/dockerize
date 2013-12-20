@@ -226,5 +226,29 @@ describe Dockerize::DocumentWriter do
         end
       end
     end
+
+    context 'invalid content is provided' do
+      it 'should not create the file' do
+        tmpdir do |tmp|
+          run tmp
+          writer.stub(:document_name).and_return('foo_file')
+          expect { writer.write(nil) }.to_not change {
+            File.exists?("#{tmp}/foo_file")
+          }
+        end
+      end
+
+      it 'should print useful output mesages' do
+        tmpdir do |tmp|
+          run tmp
+          writer.stub(:document_name).and_return('foo_file')
+          writer.should_receive(:inform_of_write).with(
+            writer.send(:invalid_word)
+          )
+          writer.write(nil)
+        end
+
+      end
+    end
   end
 end

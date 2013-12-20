@@ -8,12 +8,15 @@ module Dockerize
     REPLACE_WORD = 'replaced '.red
     IGNORE_WORD = 'ignored '.yellow
 
+    attr_writer :document_name
+
     def initialize(document_name = nil, stream = $out)
       @stream = stream
       @document_name = document_name
     end
 
-    def write(contents)
+    def write(contents = nil)
+      @invalid_content = true unless contents
       ensure_containing_dir
       do_backup! if should_backup?
       inform_of_write(status_word)
@@ -30,8 +33,18 @@ module Dockerize
 
     protected
 
+    def invalid_content?
+      @invalid_content.nil? ? false : @invalid_content
+    end
+
+    def invalid_word
+      'The template provided contains invalid content: '.blue
+    end
+
     def status_word
-      if !should_write?
+      if invalid_content?
+        invalid_word
+      elsif !should_write?
         IGNORE_WORD
       elsif preexisting_file?
         REPLACE_WORD
@@ -45,7 +58,7 @@ module Dockerize
     end
 
     def should_write?
-      Dockerize::Config.force? || !preexisting_file?
+      (Dockerize::Config.force? || !preexisting_file?) && !invalid_content?
     end
 
     def preexisting_file?
