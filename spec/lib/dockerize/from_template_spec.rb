@@ -10,17 +10,18 @@ describe Dockerize::FromTemplate do
 
   let(:filename) { 'Dockerfile' }
   let(:contents) do
-    <<-EOB.gsub(/^ +/, '')
+    <<-EOB.gsub(/^ {4}/, '')
     ---
-    filename: #{filename}
-    filter: Baxter the Dog
-    foo: pasta
-    --- |
-    This is the first line
+    filename: '#{filename}'
+    filter: 'Baxter the Dog'
+    foo: 'pasta'
+    ---
+    content: |
+      This is the first line
 
-    This is the second line
+      This is the second line
 
-    This has some erb interpolation: "<%= foo %>"
+      This has some erb interpolation: "<%= foo %>"
     EOB
   end
   let(:parsed_contents) do
