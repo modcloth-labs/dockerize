@@ -4,7 +4,7 @@ require 'dockerize/document_writer'
 require 'fileutils'
 
 describe Dockerize::DocumentWriter do
-  subject(:writer) { described_class.new }
+  let(:writer) { described_class.new }
 
   describe 'determining file path to write' do
     context 'no document_name is specified' do
@@ -162,7 +162,7 @@ describe Dockerize::DocumentWriter do
 
   describe 'writing' do
     let(:filename) { 'foo_file' }
-    before(:each) { writer.stub(:document_name).and_return(filename) }
+    let(:writer) { described_class.new(filename) }
 
     context 'dry run' do
       it 'writes to standard out' do
@@ -224,6 +224,30 @@ describe Dockerize::DocumentWriter do
           writer.write('12345')
           File.directory?("#{tmp}/foo_dir").should == true
         end
+      end
+    end
+
+    context 'invalid content is provided' do
+      it 'should not create the file' do
+        tmpdir do |tmp|
+          run tmp
+          writer.stub(:document_name).and_return('foo_file')
+          expect { writer.write(nil) }.to_not change {
+            File.exists?("#{tmp}/foo_file")
+          }
+        end
+      end
+
+      it 'should print useful output mesages' do
+        tmpdir do |tmp|
+          run tmp
+          writer.stub(:document_name).and_return('foo_file')
+          writer.should_receive(:inform_of_write).with(
+            writer.send(:invalid_word)
+          )
+          writer.write(nil)
+        end
+
       end
     end
   end

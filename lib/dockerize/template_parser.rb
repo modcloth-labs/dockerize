@@ -4,15 +4,11 @@ require 'yaml'
 require 'ostruct'
 
 module Dockerize
-  class FromTemplate < Dockerize::DocumentWriter
-    attr_reader :raw_content
+  class TemplateParser
+    attr_reader :raw_text
 
-    def initialize(contents_or_file)
-      if File.exists?(contents_or_file)
-        @raw_content = File.read(contents_or_file)
-      else
-        @raw_content = contents_or_file
-      end
+    def initialize(contents)
+      @raw_text = contents
     end
 
     def yaml_metadata
@@ -24,15 +20,20 @@ module Dockerize
     end
 
     def parsed_erb
-      @parsed_erb ||= parse_erb(yaml_content, template_vars)
+      @parsed_erb ||= begin
+                        parse_erb(yaml_content, template_vars)
+                      rescue Psych::SyntaxError, SyntaxError
+                        nil
+                      end
     end
 
     def document_name
       yaml_metadata['filename']
     end
 
-    def write
-      super(parsed_erb)
+    def write_with(writer)
+      writer.document_name = document_name
+      writer.write(parsed_erb)
     end
 
     private
@@ -48,7 +49,7 @@ module Dockerize
     end
 
     def yaml_documents
-      @stream ||= YAML.load_documents(raw_content)
+      @stream ||= YAML.load_documents(raw_text)
       @yaml_documents ||= {
         metadata: @stream[0],
         content: @stream[1].values[0],

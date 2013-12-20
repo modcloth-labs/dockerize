@@ -10,11 +10,29 @@ module Dockerize
         ensure_project_dir
         parse_args
         set_out_stream
+        handle_templates
       end
+
+      # read in a list of files in the templates dir
+      # run all of them through FromTemplate
+      # catch errors and try to make them useful
+      # # including yaml parsing error, no document_name name found
 
       private
 
       attr_writer :args
+
+      def handle_templates
+        all_templates.map do |template|
+          Dockerize::TemplateParser.new(File.read(template))
+            .write_with Dockerize::DocumentWriter.new
+        end
+      end
+
+      def all_templates
+        Dir["#{Dockerize::Config.template_dir}/**/*.erb.yml"] |
+          Dir["#{Dockerize::Config.template_dir}/**/*.erb.yaml"]
+      end
 
       def set_out_stream
         $out = $stdout
