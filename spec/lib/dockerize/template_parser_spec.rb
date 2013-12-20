@@ -3,11 +3,6 @@
 require 'dockerize/template_parser'
 
 describe Dockerize::TemplateParser do
-  # set up template context from config & Config
-  # render the template
-  # get the output file name from the template
-  # allow someone to pass in the path to the template
-
   let(:filename) { 'Dockerfile' }
   let(:contents) do
     <<-EOB.gsub(/^ {4}/, '')
