@@ -1,0 +1,17 @@
+# vim: ft=yaml
+---
+filename: 'Dockerfile'
+executable: false
+---
+contents: |
+  FROM <%= %>
+  MAINTAINER <%= %>
+
+  RUN apt-get update -yq
+
+  ADD ./.run /docker/run
+
+  EXPOSE 80 443
+  VOLUME["/net", "/bridge"]
+
+  CMD["/docker/run/bridge"]

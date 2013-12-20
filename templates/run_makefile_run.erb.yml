@@ -1,0 +1,12 @@
+# vim: ft=yaml
+---
+filename: '.run/Makefile.run'
+executable: false
+---
+contents: |
+  \all: deploy
+
+  \# comments go here
+  \deploy:
+
+  \.PHONY: all deploy
