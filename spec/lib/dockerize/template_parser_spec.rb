@@ -34,33 +34,16 @@ describe Dockerize::TemplateParser do
     EOB
   end
 
-  subject(:writer) { described_class.new(contents) }
+  subject(:parser) { described_class.new(contents) }
 
-  describe 'target document name' do
-    it 'provides a valid output_target' do
-      expect { writer.output_target }.to_not raise_error
-    end
+  it 'assigns the contents passed in as the raw text' do
+    parser.raw_text.should == contents
   end
 
   describe 'retrieving template file contents' do
-    it 'reads in the raw file contents' do
-      tmpdir do |tmp|
-        file_path = "#{tmp}/foo"
-        File.open(file_path, 'w') do |f|
-          f.print(contents)
-        end
-
-        described_class.new(file_path).raw_content.should == contents
-      end
-    end
-
-    it 'assumes the text given that is not a file is the content' do
-      writer.raw_content.should == contents
-    end
-
     context 'parsing the yaml' do
       it 'retrieves the correct header vars' do
-        writer.yaml_metadata.should == {
+        parser.yaml_metadata.should == {
           'filename' => filename,
           'filter' => 'Baxter the Dog',
           'foo' => 'pasta',
@@ -68,7 +51,7 @@ describe Dockerize::TemplateParser do
       end
 
       it 'retrieves the correct erb content' do
-        writer.yaml_content.should == <<-EOB.gsub(/^ +/, '')
+        parser.yaml_content.should == <<-EOB.gsub(/^ +/, '')
         This is the first line
 
         This is the second line
@@ -84,16 +67,18 @@ describe Dockerize::TemplateParser do
       end
 
       it 'produces the correct output text' do
-        writer.parsed_erb.should == parsed_contents
+        parser.parsed_erb.should == parsed_contents
       end
     end
   end
 
   describe 'writing the file' do
+    let(:writer) { Dockerize::DocumentWriter.new(filename) }
+
     it 'creates the file' do
       tmpdir do |tmp|
         run tmp
-        expect { writer.write }.to change {
+        expect { parser.write_with writer }.to change {
           File.exists?("#{tmp}/#{filename}")
         }
       end
@@ -102,7 +87,7 @@ describe Dockerize::TemplateParser do
     it 'writes the correct contents to the file' do
       tmpdir do |tmp|
         run tmp
-        writer.write
+        parser.write_with writer
         File.read("#{tmp}/#{filename}").should == parsed_contents
       end
     end

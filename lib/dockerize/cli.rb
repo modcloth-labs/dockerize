@@ -12,6 +12,11 @@ module Dockerize
         set_out_stream
       end
 
+      # read in a list of files in the templates dir
+      # run all of them through FromTemplate
+      # catch errors and try to make them useful
+      # # including yaml parsing error, no document_name name found
+
       private
 
       attr_writer :args
