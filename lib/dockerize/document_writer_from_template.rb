@@ -2,9 +2,10 @@
 
 require 'yaml'
 require 'ostruct'
+require 'dockerize/document_writer'
 
 module Dockerize
-  class FromTemplate < Dockerize::DocumentWriter
+  class DocumentWriterFromTemplate < Dockerize::DocumentWriter
     attr_reader :raw_content
 
     def initialize(contents_or_file)
