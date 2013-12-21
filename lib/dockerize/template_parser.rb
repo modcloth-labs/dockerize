@@ -1,63 +1,63 @@
 # coding: utf-8
 
-require 'yaml'
 require 'ostruct'
+require 'erb'
 
 module Dockerize
   class TemplateParser
     attr_reader :raw_text
+    attr_reader :metadata
 
     def initialize(contents)
       @raw_text = contents
-    end
-
-    def yaml_metadata
-      @yaml_header ||= yaml_documents[:metadata]
-    end
-
-    def yaml_content
-      @yaml_content ||= yaml_documents[:content]
-    end
-
-    def parsed_erb
-      @parsed_erb ||= begin
-                        parse_erb(yaml_content, template_vars)
-                      rescue Psych::SyntaxError, SyntaxError
-                        nil
-                      end
+      @metadata = []
     end
 
     def document_name
-      yaml_metadata['filename']
+      metadata[:filename]
     end
 
     def executable?
-      yaml_metadata['executable'] == true ? true : false
+      metadata[:executable] == true ? true : false
     end
 
     def write_with(writer)
+      text = parsed_erb
       writer.document_name = document_name
-      writer.write(parsed_erb, executable?)
+      writer.write(text, executable?)
+    end
+
+    def parsed_erb
+      return @parsed_erb if @parsed_erb
+      begin
+        @parsed_erb = parse_erb(raw_text, config_vars)
+      rescue SyntaxError
+        @parsed_erb = nil
+      end
     end
 
     private
 
-    def template_vars
-      Dockerize::Config.opts.merge(yaml_metadata)
+    def config_vars
+      Dockerize::Config.opts
     end
 
     def parse_erb(raw, hash)
-      ERB.new(raw, 0, '%<>>-').result(
-        OpenStruct.new(hash).instance_eval { binding }
+      os = OpenStruct.new(hash)
+      os_before = os.clone
+      result = ERB.new(raw, nil, '%<>>-').result(
+        os.instance_eval { binding }
       )
+      @metadata = hash_diff(os, os_before)
+      result
     end
 
-    def yaml_documents
-      @stream ||= YAML.load_documents(raw_text)
-      @yaml_documents ||= {
-        metadata: @stream[0],
-        content: @stream[1].values[0],
-      }
+    def hash_diff(os1, os2)
+      h1 = os1.marshal_dump
+      h2 = os2.marshal_dump
+      h1.dup.delete_if { |k, v| h2[k] == v }.merge!(
+        h2.dup.delete_if { |k, v| h1.key?(k) }
+      )
     end
   end
 end

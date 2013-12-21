@@ -77,7 +77,7 @@ module Dockerize
             exit
           end
 
-          config.send(:opts)[:top] = top
+          config.send(:opts)[:top] = config.top
           config.send(:generate_accessor_methods, self)
         end
 

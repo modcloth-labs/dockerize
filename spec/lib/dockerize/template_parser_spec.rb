@@ -5,19 +5,16 @@ require 'dockerize/template_parser'
 describe Dockerize::TemplateParser do
   let(:filename) { 'Dockerfile' }
   let(:contents) do
-    <<-EOB.gsub(/^ {4}/, '')
-    ---
-    filename: '#{filename}'
-    filter: 'Baxter the Dog'
-    foo: 'pasta'
-    executable: true
-    ---
-    content: |
-      This is the first line
+    <<-EOB.gsub(/^ +/, '')
+    <% self.filename = '#{filename}' -%>
+    <% self.filter = 'Baxter the Dog' -%>
+    <% self.foo = 'pasta' -%>
+    <% self.executable = true -%>
+    This is the first line
 
-      This is the second line
+    This is the second line
 
-      This has some erb interpolation: "<%= foo %>"
+    This has some erb interpolation: "<%= foo %>"
     EOB
   end
   let(:parsed_contents) do
@@ -37,24 +34,15 @@ describe Dockerize::TemplateParser do
   end
 
   describe 'retrieving template file contents' do
-    context 'parsing the yaml' do
+    context 'parsing the template' do
       it 'retrieves the correct header vars' do
-        parser.yaml_metadata.should == {
-          'filename' => filename,
-          'filter' => 'Baxter the Dog',
-          'foo' => 'pasta',
-          'executable' => true
+        parser.parsed_erb
+        parser.metadata.should == {
+          filename: filename,
+          filter: 'Baxter the Dog',
+          foo: 'pasta',
+          executable: true
         }
-      end
-
-      it 'retrieves the correct erb content' do
-        parser.yaml_content.should == <<-EOB.gsub(/^ +/, '')
-        This is the first line
-
-        This is the second line
-
-        This has some erb interpolation: "<%= foo %>"
-        EOB
       end
     end
 
@@ -95,49 +83,27 @@ describe Dockerize::TemplateParser do
   end
 
   describe 'handling invalid templates' do
-    let(:invalid_yaml) do
-      <<-YAML.gsub(/^ {6}/, '')
-      ---
-      filename: '#{filename}'
-      filter: 'Baxter the Dog'
-      foo: 'pasta'
-      ---
+    let(:invalid_erb) do
+      <<-ERB.gsub(/^\s+/, '')
       This is the first line
 
       This is the second line
 
-      This has some erb interpolation: "<%= foo %>"
-      YAML
-    end
-    let(:invalid_erb) do
-      <<-ERB.gsub(/^ {6}/, '')
-      ---
-      filename: '#{filename}'
-      filter: 'Baxter the Dog'
-      foo: 'pasta'
-      ---
-      content: |
-        This is the first line
-
-        This is the second line
-
-        This has some erb interpolation: <%= foo #%>
+      This has some erb interpolation: <%= foo #%>
       ERB
     end
 
-    %w(erb yaml).each do |t|
-      context "invalid #{t}" do
-        subject(:invalid_content_parser) do
-          described_class.new(send(:"invalid_#{t}"))
-        end
+    context 'invalid erb' do
+      subject(:invalid_erb_parser) do
+        described_class.new(invalid_erb)
+      end
 
-        it "does not explode when given invalid #{t}" do
-          expect { invalid_content_parser.parsed_erb }.to_not raise_error
-        end
+      it 'does not explode when given invalid erb' do
+        expect { invalid_erb_parser.parsed_erb }.to_not raise_error
+      end
 
-        it 'returns nil as the parsed content' do
-          invalid_content_parser.parsed_erb.should be_nil
-        end
+      it 'returns nil as the parsed content' do
+        invalid_erb_parser.parsed_erb.should be_nil
       end
     end
   end

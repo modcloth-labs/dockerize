@@ -42,18 +42,16 @@ describe Dockerize::Cli do
   describe 'parsing templates' do
     let(:filename) { 'foo' }
     let(:template) do
-      <<-EOB.gsub(/^ {6}/, '')
-      ---
-      filename: '#{filename}'
-      filter: 'Baxter the Dog'
-      foo: 'pasta'
-      ---
-      content: |
-        This is the first line
+      <<-EOB.gsub(/^ +/, '')
+      <% self.filename = '#{filename}' -%>
+      <% self.filter = 'Baxter the Dog' -%>
+      <% self.foo = 'pasta' -%>
+      <% self.executable = true -%>
+      This is the first line
 
-        This is the second line
+      This is the second line
 
-        This has some erb interpolation: "<%= foo %>"
+      This has some erb interpolation: "<%= foo %>"
       EOB
     end
     let(:parsed_template) do
@@ -69,7 +67,7 @@ describe Dockerize::Cli do
     it 'writes files from the given templates' do
       tmpdir do |project_dir|
         tmpdir do |template_dir|
-          File.open("#{template_dir}/template.erb.yml", 'w+') do |f|
+          File.open("#{template_dir}/template.erb", 'w+') do |f|
             f.puts template
           end
           run "#{project_dir} --template-dir #{template_dir}"
@@ -83,7 +81,7 @@ describe Dockerize::Cli do
     it 'writes correct content to the target files' do
       tmpdir do |project_dir|
         tmpdir do |template_dir|
-          File.open("#{template_dir}/template.erb.yml", 'w+') do |f|
+          File.open("#{template_dir}/template.erb", 'w+') do |f|
             f.puts template
           end
           run "#{project_dir} --template-dir #{template_dir}"
