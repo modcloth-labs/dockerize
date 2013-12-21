@@ -1,5 +1,5 @@
 # coding: utf-8
-# rubocop:disable MethodLength, ClassLength
+# rubocop:disable MethodLength, ClassLength, CyclomaticComplexity
 
 require 'trollop'
 
@@ -13,6 +13,8 @@ module Dockerize
         config = self
 
         Trollop.options(args) do
+          text "Usage: dockerize <project directory> [options]\nOptions:\n"
+
           # -q/--quiet
           opt :quiet, 'Silence output', type: :flag, short: 'q', default: false
 
@@ -38,27 +40,30 @@ module Dockerize
           opt :registry, 'The Docker registry to use when writing files',
               type: :string,
               short: 'r',
-              default: 'quay.io/modcloth'
-
-          # -p/--project-name
-          opt :project_name, 'The name of the current project',
-              type: :string,
-              short: 'p',
-              default: nil
+              default: ENV['DOCKERIZE_REGISTRY'] || 'quay.io/modcloth'
 
           # -t/--template-dir
           opt :template_dir,
               'The directory containing the templates to be written',
               type: :string,
               short: 't',
-              default: "#{config.top}/templates"
+              default: ENV['DOCKERIZE_TEMPLATE_DIR'] ||
+                "#{config.top}/templates"
 
           # -m/--maintainer
           opt :maintainer,
-              'The default maintainer to use for any Dockerfiles written',
+              'The default MAINTAINER to use for any Dockerfiles written',
               type: :string,
               short: 'm',
-              default: "#{ENV['USER']} <#{ENV['USER']}@example.com>"
+              default: ENV['DOCKERIZE_MAINTAINER'] ||
+                "#{ENV['USER']} <#{ENV['USER']}@example.com>"
+
+          # -F/--from
+          opt :from,
+              'The default base image to use for any Dockerfiles written',
+              type: :string,
+              short: 'F',
+              default: ENV['DOCKERIZE_FROM'] || 'ubuntu:12.04'
 
           version "dockerize #{Dockerize::VERSION}"
 
