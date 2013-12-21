@@ -52,7 +52,7 @@ module Dockerize
 
           # -m/--maintainer
           opt :maintainer,
-              'The default MAINTAINERto use for any Dockerfiles written',
+              'The default MAINTAINER to use for any Dockerfiles written',
               type: :string,
               short: 'm',
               default: ENV['DOCKERIZE_MAINTAINER'] ||
