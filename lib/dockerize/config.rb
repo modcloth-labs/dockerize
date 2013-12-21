@@ -35,8 +35,7 @@ module Dockerize
               default: true
 
           # -r/--registry
-          opt :registry, 'The Docker registry to use when writing files. ' <<
-                'Example: quay.io/modcloth',
+          opt :registry, 'The Docker registry to use when writing files',
               type: :string,
               short: 'r',
               default: 'quay.io/modcloth'
@@ -59,7 +58,7 @@ module Dockerize
               'The default maintainer to use for any Dockerfiles written',
               type: :string,
               short: 'm',
-              default: 'I am having an identity crisis'
+              default: "#{ENV['USER']} <#{ENV['USER']}@example.com>"
 
           version "dockerize #{Dockerize::VERSION}"
 
