@@ -1,6 +1,6 @@
 <% self.filename = 'Dockerfile' -%>
 <% self.executable = false -%>
-FROM ubuntu:12.04
+FROM <%= from %>
 MAINTAINER <%= maintainer %>
 
 RUN apt-get update -yq

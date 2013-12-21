@@ -57,10 +57,17 @@ module Dockerize
 
           # -m/--maintainer
           opt :maintainer,
-              'The default maintainer to use for any Dockerfiles written',
+              'The default MAINTAINERto use for any Dockerfiles written',
               type: :string,
               short: 'm',
               default: "#{ENV['USER']} <#{ENV['USER']}@example.com>"
+
+          # -F/--from
+          opt :from,
+              'The default FROM to use for any Dockerfiles written',
+              type: :string,
+              short: 'F',
+              default: 'ubuntu:12.04'
 
           version "dockerize #{Dockerize::VERSION}"
 
