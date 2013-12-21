@@ -17,6 +17,20 @@ describe Dockerize::TemplateParser do
     This has some erb interpolation: "<%= foo %>"
     EOB
   end
+  let(:non_executable_contents) do
+    <<-EOB.gsub(/^ +/, '')
+    <% self.filename = '#{filename}' -%>
+    <% self.filter = 'Baxter the Dog' -%>
+    <% self.foo = 'pasta' -%>
+    <% self.executable = false -%>
+    This is the first line
+
+    This is the second line
+
+    This has some erb interpolation: "<%= foo %>"
+    EOB
+
+  end
   let(:parsed_contents) do
     <<-EOB.gsub(/^ +/, '')
     This is the first line
@@ -28,6 +42,9 @@ describe Dockerize::TemplateParser do
   end
 
   subject(:parser) { described_class.new(contents) }
+  subject(:non_executable_file_parser) do
+    described_class.new(non_executable_contents)
+  end
 
   it 'assigns the contents passed in as the raw text' do
     parser.raw_text.should == contents
@@ -73,11 +90,23 @@ describe Dockerize::TemplateParser do
       end
     end
 
-    it 'makes the file executable' do
-      tmpdir do |tmp|
-        run tmp
-        parser.write_with writer
-        File.executable?("#{tmp}/#{filename}").should == true
+    context 'the file should be executable' do
+      it 'makes the file executable' do
+        tmpdir do |tmp|
+          run tmp
+          parser.write_with writer
+          File.executable?("#{tmp}/#{filename}").should == true
+        end
+      end
+    end
+
+    context 'the file should not be executable' do
+      it 'makes the file executable' do
+        tmpdir do |tmp|
+          run tmp
+          non_executable_file_parser.write_with writer
+          File.executable?("#{tmp}/#{filename}").should == false
+        end
       end
     end
   end

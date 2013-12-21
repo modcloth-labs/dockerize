@@ -73,7 +73,7 @@ module Dockerize
     def do_write!(contents, executable)
       @stream = File.open(output_target, 'w') unless Dockerize::Config.dry_run?
       @stream.print contents
-      FileUtils.chmod('+x', output_target) unless @stream == $out
+      FileUtils.chmod('+x', output_target) if executable && @stream != $out
     ensure
       @stream.close unless @stream == $out
     end
