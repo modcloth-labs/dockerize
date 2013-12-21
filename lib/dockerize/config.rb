@@ -60,7 +60,7 @@ module Dockerize
 
           # -F/--from
           opt :from,
-              'The default FROM to use for any Dockerfiles written',
+              'The default base image to use for any Dockerfiles written',
               type: :string,
               short: 'F',
               default: ENV['DOCKERIZE_FROM'] || 'ubuntu:12.04'
