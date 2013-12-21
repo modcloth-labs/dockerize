@@ -13,6 +13,8 @@ module Dockerize
         config = self
 
         Trollop.options(args) do
+          text "Usage: dockerize <project directory> [options]\nOptions:\n"
+
           # -q/--quiet
           opt :quiet, 'Silence output', type: :flag, short: 'q', default: false
 
