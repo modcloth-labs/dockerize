@@ -43,8 +43,8 @@ To see what options are available, run `dockerize` with the help flag:
 #   --backup, --no-backup, -b:   Creates .bak version of files before overwriting them
 #          --registry, -r <s>:   The Docker registry to use when writing files
 #      --template-dir, -t <s>:   The directory containing the templates to be written
-#        --maintainer, -m <s>:   The default MAINTAINERto use for any Dockerfiles written 
-#              --from, -F <s>:   The default FROM to use for any Dockerfiles written
+#        --maintainer, -m <s>:   The default MAINTAINER to use for any Dockerfiles written 
+#              --from, -F <s>:   The default base image to use for any Dockerfiles written
 #               --version, -v:   Print version and exit
 #                  --help, -h:   Show this message
 ```
