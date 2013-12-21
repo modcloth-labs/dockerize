@@ -11,6 +11,13 @@ way to add Docker integration to your project.  Once a project has been
 'dockerized,' you will have some useful files in place that will guide
 you through the process of deploying your application with Docker.
 
+In particular, `dockerize` creates the `.run` directory in your project.
+Use this directory to configure important files that need to be placed
+on the host machine *outside* your container at deploy time.  These
+files might include an [Upstart](http://upstart.ubuntu.com/cookbook/)
+config file, for example.  Follow the comments in the files for more
+details
+
 ## Installation
 
 Install with:
@@ -57,6 +64,26 @@ configurable in the environment include:
 * template dir - `DOCKERIZE_TEMPLATE_DIR`
 * default maintainer - `DOCKERIZE_MAINTAINER`
 * default base image - `DOCKERIZE_FROM`
+
+## Deploying
+
+This gem also provides a handy script for unpacking the `.run` directory
+at deploy time.  To run this script, use the following command:
+
+```bash
+# retrieve the script
+> curl -s -O https://raw.github.com/modcloth-labs/dockerize/master/bin/dockerize-unpack
+
+# make it executable
+> chmod +x dockerize-unpack
+
+# run the script
+> dockerize-unpack quay.io/yourorg/example-image:tag
+
+# or, run with the help flag for more info
+> dockerize-unpack --help
+```
+
 
 ## Contributing
 
