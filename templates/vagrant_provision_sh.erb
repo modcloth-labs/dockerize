@@ -1,0 +1,14 @@
+<% self.filename = '.vagrant-provision.sh' -%>
+<% self.executable = true -%>
+#!/usr/bin/env bash
+
+export DEBIAN_FRONTEND=noninteractive
+
+set -e
+set -x
+
+apt-get update -yq
+apt-get install -yq git-all curl make \
+  binutils build-essential htop make tree
+curl -sL https://get.docker.io/ | sh
+usermod -a -G docker vagrant
