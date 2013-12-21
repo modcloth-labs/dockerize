@@ -5,19 +5,31 @@ require 'dockerize/template_parser'
 describe Dockerize::TemplateParser do
   let(:filename) { 'Dockerfile' }
   let(:contents) do
-    <<-EOB.gsub(/^ {4}/, '')
-    ---
-    filename: '#{filename}'
-    filter: 'Baxter the Dog'
-    foo: 'pasta'
-    ---
-    content: |
-      This is the first line
+    <<-EOB.gsub(/^ +/, '')
+    <% self.filename = '#{filename}' -%>
+    <% self.filter = 'Baxter the Dog' -%>
+    <% self.foo = 'pasta' -%>
+    <% self.executable = true -%>
+    This is the first line
 
-      This is the second line
+    This is the second line
 
-      This has some erb interpolation: "<%= foo %>"
+    This has some erb interpolation: "<%= foo %>"
     EOB
+  end
+  let(:non_executable_contents) do
+    <<-EOB.gsub(/^ +/, '')
+    <% self.filename = '#{filename}' -%>
+    <% self.filter = 'Baxter the Dog' -%>
+    <% self.foo = 'pasta' -%>
+    <% self.executable = false -%>
+    This is the first line
+
+    This is the second line
+
+    This has some erb interpolation: "<%= foo %>"
+    EOB
+
   end
   let(:parsed_contents) do
     <<-EOB.gsub(/^ +/, '')
@@ -30,29 +42,24 @@ describe Dockerize::TemplateParser do
   end
 
   subject(:parser) { described_class.new(contents) }
+  subject(:non_executable_file_parser) do
+    described_class.new(non_executable_contents)
+  end
 
   it 'assigns the contents passed in as the raw text' do
     parser.raw_text.should == contents
   end
 
   describe 'retrieving template file contents' do
-    context 'parsing the yaml' do
+    context 'parsing the template' do
       it 'retrieves the correct header vars' do
-        parser.yaml_metadata.should == {
-          'filename' => filename,
-          'filter' => 'Baxter the Dog',
-          'foo' => 'pasta',
+        parser.parsed_erb
+        parser.metadata.should == {
+          filename: filename,
+          filter: 'Baxter the Dog',
+          foo: 'pasta',
+          executable: true
         }
-      end
-
-      it 'retrieves the correct erb content' do
-        parser.yaml_content.should == <<-EOB.gsub(/^ +/, '')
-        This is the first line
-
-        This is the second line
-
-        This has some erb interpolation: "<%= foo %>"
-        EOB
       end
     end
 
@@ -82,52 +89,50 @@ describe Dockerize::TemplateParser do
         File.read("#{tmp}/#{filename}").should == parsed_contents
       end
     end
+
+    context 'the file should be executable' do
+      it 'makes the file executable' do
+        tmpdir do |tmp|
+          run tmp
+          parser.write_with writer
+          File.executable?("#{tmp}/#{filename}").should == true
+        end
+      end
+    end
+
+    context 'the file should not be executable' do
+      it 'makes the file executable' do
+        tmpdir do |tmp|
+          run tmp
+          non_executable_file_parser.write_with writer
+          File.executable?("#{tmp}/#{filename}").should == false
+        end
+      end
+    end
   end
 
   describe 'handling invalid templates' do
-    let(:invalid_yaml) do
-      <<-YAML.gsub(/^ {6}/, '')
-      ---
-      filename: '#{filename}'
-      filter: 'Baxter the Dog'
-      foo: 'pasta'
-      ---
+    let(:invalid_erb) do
+      <<-ERB.gsub(/^\s+/, '')
       This is the first line
 
       This is the second line
 
-      This has some erb interpolation: "<%= foo %>"
-      YAML
-    end
-    let(:invalid_erb) do
-      <<-ERB.gsub(/^ {6}/, '')
-      ---
-      filename: '#{filename}'
-      filter: 'Baxter the Dog'
-      foo: 'pasta'
-      ---
-      content: |
-        This is the first line
-
-        This is the second line
-
-        This has some erb interpolation: <%= foo #%>
+      This has some erb interpolation: <%= foo #%>
       ERB
     end
 
-    %w(erb yaml).each do |t|
-      context "invalid #{t}" do
-        subject(:invalid_content_parser) do
-          described_class.new(send(:"invalid_#{t}"))
-        end
+    context 'invalid erb' do
+      subject(:invalid_erb_parser) do
+        described_class.new(invalid_erb)
+      end
 
-        it "does not explode when given invalid #{t}" do
-          expect { invalid_content_parser.parsed_erb }.to_not raise_error
-        end
+      it 'does not explode when given invalid erb' do
+        expect { invalid_erb_parser.parsed_erb }.to_not raise_error
+      end
 
-        it 'returns nil as the parsed content' do
-          invalid_content_parser.parsed_erb.should be_nil
-        end
+      it 'returns nil as the parsed content' do
+        invalid_erb_parser.parsed_erb.should be_nil
       end
     end
   end

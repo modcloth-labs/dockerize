@@ -35,8 +35,7 @@ module Dockerize
               default: true
 
           # -r/--registry
-          opt :registry, 'The Docker registry to use when writing files. ' <<
-                'Example: quay.io/modcloth',
+          opt :registry, 'The Docker registry to use when writing files',
               type: :string,
               short: 'r',
               default: 'quay.io/modcloth'
@@ -47,12 +46,19 @@ module Dockerize
               short: 'p',
               default: nil
 
-          ## -t/--template-dir
+          # -t/--template-dir
           opt :template_dir,
               'The directory containing the templates to be written',
               type: :string,
               short: 't',
               default: "#{config.top}/templates"
+
+          # -m/--maintainer
+          opt :maintainer,
+              'The default maintainer to use for any Dockerfiles written',
+              type: :string,
+              short: 'm',
+              default: "#{ENV['USER']} <#{ENV['USER']}@example.com>"
 
           version "dockerize #{Dockerize::VERSION}"
 
@@ -70,7 +76,7 @@ module Dockerize
             exit
           end
 
-          config.send(:opts)[:top] = top
+          config.send(:opts)[:top] = config.top
           config.send(:generate_accessor_methods, self)
         end
 

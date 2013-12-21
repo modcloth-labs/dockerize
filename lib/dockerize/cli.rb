@@ -1,5 +1,8 @@
 # coding: utf-8
 
+require 'dockerize/template_parser'
+require 'dockerize/document_writer'
+
 module Dockerize
   class Cli
     class << self
@@ -13,11 +16,6 @@ module Dockerize
         handle_templates
       end
 
-      # read in a list of files in the templates dir
-      # run all of them through FromTemplate
-      # catch errors and try to make them useful
-      # # including yaml parsing error, no document_name name found
-
       private
 
       attr_writer :args
@@ -30,8 +28,8 @@ module Dockerize
       end
 
       def all_templates
-        Dir["#{Dockerize::Config.template_dir}/**/*.erb.yml"] |
-          Dir["#{Dockerize::Config.template_dir}/**/*.erb.yaml"]
+        Dir["#{Dockerize::Config.template_dir}/**/*.erb"] |
+          Dir["#{Dockerize::Config.template_dir}/**/*.erb"]
       end
 
       def set_out_stream

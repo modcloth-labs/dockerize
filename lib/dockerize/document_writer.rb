@@ -1,6 +1,7 @@
 # coding: utf-8
 
 require 'fileutils'
+require 'colored'
 
 module Dockerize
   class DocumentWriter
@@ -15,12 +16,12 @@ module Dockerize
       @document_name = document_name
     end
 
-    def write(contents = nil)
+    def write(contents = nil, executable = false)
       @invalid_content = true unless contents
       ensure_containing_dir
       do_backup! if should_backup?
       inform_of_write(status_word)
-      do_write!(contents) if should_write?
+      do_write!(contents, executable) if should_write?
     end
 
     def output_target
@@ -69,9 +70,10 @@ module Dockerize
       FileUtils.mkdir_p(File.dirname(target))
     end
 
-    def do_write!(contents)
+    def do_write!(contents, executable)
       @stream = File.open(output_target, 'w') unless Dockerize::Config.dry_run?
       @stream.print contents
+      FileUtils.chmod('+x', output_target) if executable && @stream != $out
     ensure
       @stream.close unless @stream == $out
     end
