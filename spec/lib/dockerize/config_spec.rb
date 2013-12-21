@@ -139,31 +139,23 @@ describe Dockerize::Config do
       end
     end
 
-    describe 'project_name' do
-      let(:project_name) { 'baz' }
-      let(:subdir) { 'foobarbaz' }
-
-      %w(-p --project-name).each do |arg|
-        it "sets project name for #{arg}" do
-          run ". #{arg} #{project_name}"
-          config.project_name.should == project_name
-        end
-      end
-
-      it 'sets the default to the project directory name' do
-        tmpdir do |tmp|
-          project_dir = "#{tmp}/#{subdir}"
-          FileUtils.mkdir_p(project_dir)
-          run project_dir
-          config.project_name.should == subdir
-        end
-      end
-    end
-
     describe 'template_dir' do
       it 'sets the default template dir to the top level' do
         run '.'
         config.template_dir.should == "#{top}/templates"
+      end
+    end
+  end
+
+  describe 'accepting options from the environment' do
+    %w(registry template_dir maintainer from).map do |var|
+      before(:each) do
+        ENV.stub(:[]).with("DOCKERIZE_#{var.upcase}").and_return('foo')
+      end
+
+      it "accepts #{var} from the environment" do
+        run '.'
+        config.send(var.to_sym).should == 'foo'
       end
     end
   end
