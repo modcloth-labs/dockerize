@@ -1,18 +1,13 @@
-# vim: ft=yaml
----
-filename: 'Dockerfile'
-executable: false
----
-contents: |
-  FROM <%= %>
-  MAINTAINER <%= %>
+<% self.filename = 'Dockerfile' -%>
+<% self.executable = true -%>
+FROM ubuntu:12.04
+MAINTAINER <%= maintainer %>
 
-  RUN apt-get update -yq
+RUN apt-get update -yq
 
-  ADD ./.run /docker/run
+ADD ./.run /docker/run
 
-  EXPOSE 80 443
-  VOLUME["/net", "/bridge"]
+EXPOSE 80 443
+VOLUME["/net", "/bridge"]
 
-  CMD["/docker/run/bridge"]
-  <% self.baz = 'gorp' -%>
+CMD["/docker/run/bridge"]

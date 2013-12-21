@@ -1,12 +1,8 @@
-# vim: ft=yaml
----
-filename: '.run/Makefile.run'
-executable: false
----
-contents: |
-  \all: deploy
+<% self.filename = '.run/Makefile.run' -%>
+<% self.executable = false -%>
+all: deploy
 
-  \# comments go here
-  \deploy:
+# comments go here
+deploy:
 
-  \.PHONY: all deploy
+.PHONY: all deploy

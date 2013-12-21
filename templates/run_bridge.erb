@@ -1,9 +1,5 @@
-# vim: ft=yaml
----
-filename: '.run/bridge'
-executable: true
----
-contents: |
-  #!/usr/bin/env bash
+<% self.filename = '.run/bridge' -%>
+<% self.executable = true -%>
+#!/usr/bin/env bash
 
-  tar -czf /bridge/run.tar.gz /docker/run
+tar -czf /bridge/run.tar.gz /docker/run
