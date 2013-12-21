@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+
+set -x
+set -e
+
+function usage() {
+  cat <<EOB
+
+  Usage: dockerize-unpack <image> [docker args]
+
+  Options:
+  -h/--help    Display this message
+
+  Unpacks the files shipped with a docker container (via the \`dockerize\` gem)
+  and puts them in place by calling the \`deploy\` target in the
+  \`Makefile.run\`
+EOB
+}
+
+function main() {
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+  esac
+
+  export DOCKER="${DOCKER:-sudo docker}"
+  export IMAGE="$1"
+  if [[ -z "$IMAGE" ]] ; then
+    usage
+    exit 1
+  fi
+  export ARGS="$2"
+
+  mkdir -p /tmp/docker-bridge
+  pushd /tmp/docker-bridge
+  fetch
+  unpack
+  popd
+}
+
+function fetch() {
+  $DOCKER run -v /tmp/docker-bridge:/bridge "$ARGS" "$IMAGE" /docker/run/bridge
+  tar -xzf /tmp/docker-bridge/run.tar.gz
+}
+
+function unpack() {
+  cd ./docker/run
+  make -f Makefile.run deploy
+}
+
+main "$@"

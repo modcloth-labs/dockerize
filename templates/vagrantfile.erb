@@ -1,0 +1,24 @@
+<% self.filename = 'Vagrantfile' -%>
+<% self.executable = false -%>
+require 'fileutils'
+
+ENV['VAGRANT_SHARED_WORKSPACE'] ||= "#{ENV['HOME']}/workspace"
+
+Vagrant.configure('2') do |config|
+  config.vm.hostname = 'modcloth-ansible-proving-ground'
+  config.vm.box = 'precise64'
+  config.vm.box_url = 'http://cloud-images.ubuntu.com/vagrant/precise/current/precise-server-cloudimg-amd64-vagrant-disk1.box'
+
+  config.vm.network :private_network, ip: '33.33.33.10', auto_correct: true
+  config.vm.network :forwarded_port, host: 2203, guest: 22
+
+  config.ssh.forward_agent = true
+  config.ssh.port = 2203
+
+  config.vm.synced_folder ENV['VAGRANT_SHARED_WORKSPACE'], '/root',
+    create: true,
+    owner: 'root',
+    group: 'root'
+
+  config.vm.provision :shell, path: '.vagrant-provision.sh'
+end
