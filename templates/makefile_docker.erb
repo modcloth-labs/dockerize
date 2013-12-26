@@ -14,6 +14,10 @@ export PROJECT
 export REGISTRY
 export LATEST
 
+# This is a general Makefile, designed to be present at the top level of your
+# project for general docker development.  Be sure to use `docker login` on the
+# vagrant vm before trying to push or pull any containers.
+
 all:
 	@echo "Available targets:"
 	@echo "  * clean     - remove all local images (and tags) for $(PROJECT)"

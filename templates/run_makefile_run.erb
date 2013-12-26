@@ -2,7 +2,12 @@
 <% self.executable = false -%>
 all: deploy
 
-# comments go here
+# The deploy task is the one that will be called automatically when this
+# application is deployed (assuming you use the unpack script).  Therefore,
+# this should be your main task and should take care of calling any other tasks
+# you need.  This Makefile is designed to be used to place files on the host
+# machine that will be used by your container or to run your container.  Good
+# examples include configuraiton files and Upstart conf files.
 deploy:
 
 .PHONY: all deploy
