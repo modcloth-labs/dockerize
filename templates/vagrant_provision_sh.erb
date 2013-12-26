@@ -2,6 +2,11 @@
 <% self.executable = true -%>
 #!/usr/bin/env bash
 
+# Installs some development essentials and docker.  The `usermod` line
+# will give the vagrant user access to the docker daemon, but be aware that
+# if you start doing development as root and then switch to the vagrant user,
+# you will have to change the permissions on the docker unix socket file.
+
 export DEBIAN_FRONTEND=noninteractive
 
 set -e

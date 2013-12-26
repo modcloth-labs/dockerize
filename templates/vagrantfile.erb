@@ -2,6 +2,11 @@
 <% self.executable = false -%>
 require 'fileutils'
 
+# The vagrant-provision script allows docker development to be done as the
+# vagrant user.  However, it is probably easier to use root.  If you wish to
+# use the vagrant user, change the `config.vm.synced_folder` command
+# accordingly.
+
 ENV['VAGRANT_SHARED_WORKSPACE'] ||= "#{ENV['HOME']}/workspace"
 
 Vagrant.configure('2') do |config|

@@ -2,4 +2,11 @@
 <% self.executable = true -%>
 #!/usr/bin/env bash
 
+# tar-gzips your run directory and places it in a mounted directory.  This
+# script is run within the container, meaning that the `run.tar.gz` file will
+# be available from outside the container once the container has stopped.  In
+# order to ensure this, the `/bridge` directory in the container must be
+# mounted on the host system using the `-v` option to `docker run`.  An example
+# can be found in the `dockerize-unpack` script mentioned in the README. That
+# script is designed to be usable as-is.
 tar -czf /bridge/run.tar.gz /docker/run
