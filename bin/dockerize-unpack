@@ -41,7 +41,7 @@ function main() {
 }
 
 function fetch() {
-  $DOCKER run -v /tmp/docker-bridge:/bridge "$ARGS" "$IMAGE" /docker/run/bridge
+  $DOCKER run -v /tmp/docker-bridge:/bridge $ARGS "$IMAGE" /docker/run/bridge
   tar -xzf /tmp/docker-bridge/run.tar.gz
 }
 
