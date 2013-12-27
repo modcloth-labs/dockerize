@@ -9,7 +9,6 @@ $LOAD_PATH.unshift(vendor) unless $LOAD_PATH.include?(vendor)
 
 require 'dockerize'
 require 'dockerize/cli'
-require 'colored'
 
 Dockerize::Cli.run(ARGV)
 exit 0
