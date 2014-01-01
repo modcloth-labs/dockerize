@@ -1,7 +1,7 @@
 # coding: utf-8
 
 require 'fileutils'
-require 'colored'
+require 'colorize'
 
 module Dockerize
   class DocumentWriter

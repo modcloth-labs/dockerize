@@ -5,7 +5,6 @@ require 'bundler/setup'
 require 'simplecov' unless RUBY_PLATFORM == 'java'
 require 'pry' unless RUBY_PLATFORM == 'java'
 require 'tmpdir'
-require 'colored'
 
 def tmpdir(&block)
   Dir.mktmpdir('dockerize-spec') do |tmp|

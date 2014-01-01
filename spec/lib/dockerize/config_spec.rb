@@ -144,6 +144,42 @@ describe Dockerize::Config do
         run '.'
         config.template_dir.should == "#{top}/templates"
       end
+
+      it 'sets the template dir correctly' do
+        tmpdir do |tmp|
+          run %W(. --template-dir #{tmp})
+          config.template_dir.should == tmp
+        end
+      end
+    end
+
+    describe 'maintainer' do
+      let(:maintainer) { 'Foo Bar <foobar@example.com>' }
+
+      it 'sets the correct default maintainer' do
+        run '.'
+        config.maintainer.should ==
+          "#{ENV['USER']} <#{ENV['USER']}@example.com>"
+      end
+
+      it 'sets the maintainer as specified' do
+        run %W(. --maintainer #{maintainer})
+        config.maintainer.should == maintainer
+      end
+    end
+
+    describe 'from' do
+      let(:from) { 'base_image' }
+
+      it 'sets the correct default base image' do
+        run '.'
+        config.from.should == 'ubuntu:12.04'
+      end
+
+      it 'sets the base image as specified' do
+        run %W(. --from #{from})
+        config.from.should == from
+      end
     end
   end
 

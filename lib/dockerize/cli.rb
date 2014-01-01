@@ -28,8 +28,7 @@ module Dockerize
       end
 
       def all_templates
-        Dir["#{Dockerize::Config.template_dir}/**/*.erb"] |
-          Dir["#{Dockerize::Config.template_dir}/**/*.erb"]
+        Dir["#{Dockerize::Config.template_dir}/**/*.erb"]
       end
 
       def set_out_stream
