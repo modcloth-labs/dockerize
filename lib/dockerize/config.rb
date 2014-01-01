@@ -1,7 +1,7 @@
 # coding: utf-8
 # rubocop:disable MethodLength, ClassLength, CyclomaticComplexity
 
-require 'trollop'
+require 'optparse'
 
 module Dockerize
   class Config
@@ -10,83 +10,88 @@ module Dockerize
       attr_accessor :opts
 
       def parse(args)
-        config = self
+        # defaults
+        @opts = {
+          quiet: false,
+          dry_run: false,
+          force: false,
+          backup: true,
+          registry: ENV['DOCKERIZE_REGISTRY'] || 'quay.io/modcloth',
+          template_dir: ENV['DOCKERIZE_TEMPLATE_DIR'] || "#{top}/templates",
+          maintainer: ENV['DOCKERIZE_MAINTAINER'] ||
+            "#{ENV['USER']} <#{ENV['USER']}@example.com>",
+          from: ENV['DOCKERIZE_FROM'] || 'ubuntu:12.04',
+        }
 
-        Trollop.options(args) do
-          text "Usage: dockerize <project directory> [options]\nOptions:\n"
-
+        OptionParser.new do |opt|
           # -q/--quiet
-          opt :quiet, 'Silence output', type: :flag, short: 'q', default: false
+          opt.on('-q', '--[no-]quiet', 'Silence output') do |q|
+            opts[:quiet] = q
+          end
 
           # -d/--dry-run
-          opt :dry_run, 'Dry run, do not write any files',
-              type: :flag,
-              short: 'd',
-              default: false
+          opt.on(
+            '-d', '--[no-]dry-run', 'Dry run, do not write any files'
+          ) do |d|
+            opts[:dry_run] = d
+          end
 
           # -f/--force
-          opt :force, 'Force existing files to be overwritten',
-              type: :flag,
-              short: 'f',
-              default: false
+          opt.on(
+            '-f', '--[no-]force', 'Force existing files to be overwritten'
+          ) { |f| opts[:force] = f }
 
           # -b/--backup
-          opt :backup, 'Creates .bak version of files before overwriting them',
-              type: :flag,
-              short: 'b',
-              default: true
+          opt.on(
+            '-b',
+            '--[no-]backup',
+            'Creates .bak version of files before overwriting them',
+          ) { |b| opts[:backup] = b }
 
           # -r/--registry
-          opt :registry, 'The Docker registry to use when writing files',
-              type: :string,
-              short: 'r',
-              default: ENV['DOCKERIZE_REGISTRY'] || 'quay.io/modcloth'
+          opt.on(
+            '-r REGISTRY',
+            '--registry REGISTRY',
+            'The Docker registry to use when writing files'
+          ) { |r| opts[:registry] = r }
 
           # -t/--template-dir
-          opt :template_dir,
-              'The directory containing the templates to be written',
-              type: :string,
-              short: 't',
-              default: ENV['DOCKERIZE_TEMPLATE_DIR'] ||
-                "#{config.top}/templates"
+          opt.on(
+            '-t TEMPLATE_DIR',
+            '--template-dir TEMPLATE_DIR',
+            'The directory containing the templates to be written',
+          ) { |t| opts[:template_dir] = t }
 
           # -m/--maintainer
-          opt :maintainer,
-              'The default MAINTAINER to use for any Dockerfiles written',
-              type: :string,
-              short: 'm',
-              default: ENV['DOCKERIZE_MAINTAINER'] ||
-                "#{ENV['USER']} <#{ENV['USER']}@example.com>"
+          opt.on(
+            '-m MAINTAINER',
+            '--maintainer MAINTAINER',
+            'The default MAINTAINER to use for any Dockerfiles written'
+          ) { |m| opts[:maintainer] = m }
 
           # -F/--from
-          opt :from,
-              'The default base image to use for any Dockerfiles written',
-              type: :string,
-              short: 'F',
-              default: ENV['DOCKERIZE_FROM'] || 'ubuntu:12.04'
+          opt.on(
+            '-F FROM',
+            '--from FROM',
+            'The default base image to use for any Dockerfiles written'
+          ) { |f| opts[:from] = f }
 
-          version "dockerize #{Dockerize::VERSION}"
-
-          begin
-            config.send(:opts=, parse(args))
-          rescue Trollop::CommandlineError => e
-            $stderr.puts "Error: #{e.message}."
-            $stderr.puts 'Try --help for help.'
-            exit 1
-          rescue Trollop::HelpNeeded
-            educate
-            exit
-          rescue Trollop::VersionNeeded
-            $stderr.puts version
+          # -h/--help
+          opt.on_tail('-h', '--help', 'Display this message') do
+            $stderr.puts opt.help
             exit
           end
 
-          config.send(:opts)[:top] = config.top
-          config.send(:generate_accessor_methods, self)
-        end
+          # -v/--version
+          opt.on_tail('-v', '--version', 'Show version and exit') do
+            $stderr.puts "dockerize #{Dockerize::VERSION}"
+            exit
+          end
+        end.parse!(args)
 
         self.project_dir = args[0]
         set_project_name unless opts[:project_name]
+        generate_accessor_methods
       end
 
       def project_dir=(dir)
@@ -126,13 +131,15 @@ module Dockerize
         klass.send(:define_method, name.to_sym, &block)
       end
 
-      def generate_accessor_methods(parser)
-        parser.specs.map do |k, v|
-          case v[:type]
-          when *Trollop::Parser::FLAG_TYPES
-            add_method("#{k}?") { @opts[k] }
-          when :string
-            add_method("#{k}") { @opts[k] }
+      def generate_accessor_methods
+        opts.each do |k, v|
+          case v
+          when TrueClass, FalseClass
+            add_method("#{k}?") { opts[k] }
+          when String
+            add_method("#{k}") { opts[k] }
+          else
+            fail OptionParser::InvalidOption, "Invalid option #{k}"
           end
         end
       end
