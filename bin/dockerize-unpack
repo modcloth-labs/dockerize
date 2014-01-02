@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -x
 set -e
 
 function usage() {
@@ -32,6 +31,8 @@ function main() {
     exit 1
   fi
   export ARGS="$2"
+
+  eval 'set -x'
 
   mkdir -p /tmp/docker-bridge
   pushd /tmp/docker-bridge
