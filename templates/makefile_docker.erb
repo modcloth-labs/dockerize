@@ -46,6 +46,7 @@ clean:
 
 .latest_container: pull
 	rm -f $@
+	$(DOCKER) rm $(shell docker ps -a -q)
 	$(DOCKER) build -t $(REGISTRY)/$(PROJECT):$(REV) $(BUILD_FLAGS) . | tee .container_output
 	awk '/^Successfully built/ { print $$NF }' .container_output | tail -1 > $@
 
