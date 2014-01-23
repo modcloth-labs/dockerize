@@ -5,7 +5,7 @@ REV ?= $(shell git describe --always)
 BUILD_FLAGS ?= -no-cache=true -rm=true
 PROJECT ?= $(shell basename $(PWD))
 REGISTRY ?= <%= registry %>
-LATEST ?= $(shell $(DOCKER) images | grep -v REPOSITORY | head -n 1 | grep -E '<none>|$(REGISTRY)\/$(PROJECT)' | awk '{print $$3}')
+LATEST ?= $(shell $(DOCKER) images | grep -v REPOSITORY | head -n 1 | grep -E '$(REGISTRY)\/$(PROJECT)' | awk '{print $$3}')
 
 export DOCKER
 export REV
@@ -14,51 +14,32 @@ export PROJECT
 export REGISTRY
 export LATEST
 
-# This is a general Makefile, designed to be present at the top level of your
-# project for general docker development.  Be sure to use `docker login` on the
-# vagrant vm before trying to push or pull any containers.
-
 all:
-	@echo "Available targets:"
-	@echo "  * clean     - remove all local images (and tags) for $(PROJECT)"
-	@echo "  * container - build a Docker container for $(PROJECT)"
-	@echo "  * latest    - builds and tags the latest container for $(PROJECT) as 'latest'"
-	@echo "  * pull      - pull down previous docker builds of $(REGISTRY)/$(PROJECT)"
-	@echo "  * push      - push $(REGISTRY)/$(PROJECT)"
-	@echo "  * tag       - tags the lastest image as 'latest'"
+  @echo "Available targets:"
+  @echo "  * clean     - remove all local images (and tags) for $(PROJECT)"
+  @echo "  * build     - build and tag the latest a Docker container for $(PROJECT)"
+  @echo "  * pull      - pull down previous docker builds of $(REGISTRY)/$(PROJECT)"
+  @echo "  * push      - push $(REGISTRY)/$(PROJECT)"
+  @echo "  * tag       - tags the lastest image as 'latest' (run as part of build as well)"
 
-container: .latest_container Dockerfile
+build: container tag
 
-latest: build_and_tag
+container:
+  $(DOCKER) build -t $(REGISTRY)/$(PROJECT):$(REV) $(BUILD_FLAGS) .
 
-tag: delete_current_tag .latest_tagged
-
-push: .latest_pushed
-
-delete_current_tag:
-	rm -f .latest_tagged
+tag:
+  ( test -z "$(LATEST)" && echo 'Nothing to tag!' ) || $(DOCKER) tag $(LATEST) $(REGISTRY)/$(PROJECT):latest
 
 clean:
-	rm -f .latest_container .latest_tagged .latest_pushed .container_output
-	export IMAGES="$(shell $(DOCKER) images | grep -E '<none>|$(REGISTRY)/$(PROJECTS)')" ; \
-	  test -z "$$IMAGES" || echo "$$IMAGES" | awk '{ print $$3 }' | \
-	  sort | uniq | xargs $(DOCKER) rmi
-
-.latest_container: pull
-	rm -f $@
-	$(DOCKER) rm $(shell docker ps -a -q)
-	$(DOCKER) build -t $(REGISTRY)/$(PROJECT):$(REV) $(BUILD_FLAGS) . | tee .container_output
-	awk '/^Successfully built/ { print $$NF }' .container_output | tail -1 > $@
-
-.latest_tagged:
-	( test -z "$(LATEST)" && echo 'Nothing to tag!' ) || $(DOCKER) tag $(LATEST) $(REGISTRY)/$(PROJECT):latest && touch $@
-
-build_and_tag: .latest_container tag
+  $(DOCKER) rm $(shell docker ps -a -q)
+  export IMAGES="$(shell $(DOCKER) images | grep -E '<none>')" ; \
+    test -z "$$IMAGES" || echo "$$IMAGES" | awk '{ print $$3 }' | \
+    sort | uniq | xargs $(DOCKER) rmi
 
 pull:
-	$(DOCKER) pull $(REGISTRY)/$(PROJECT) || true
+  $(DOCKER) pull $(REGISTRY)/$(PROJECT) || true
 
-.latest_pushed: .latest_tagged
-	$(DOCKER) push $(REGISTRY)/$(PROJECT)
+push:
+  $(DOCKER) push $(REGISTRY)/$(PROJECT) || true
 
-.PHONY: container latest push clean build_and_tag tag delete_current_tag pull
+.PHONY: build container tag clean pull push all
