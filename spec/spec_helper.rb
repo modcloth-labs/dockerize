@@ -30,7 +30,7 @@ end
 unless RUBY_PLATFORM == 'java'
   {
     output: $stdout.clone,
-    prompt_name: 'dockerize',
+    prompt_name: 'dockerize'
   }.map do |k, v|
     Pry.config.send(:"#{k}=", v)
   end
