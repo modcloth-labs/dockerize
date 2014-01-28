@@ -1,5 +1,10 @@
 <% self.filename = '.run/Makefile.run' -%>
 <% self.executable = false -%>
+DEBIAN_FRONTEND = noninteractive
+DOCKER_REV ?= latest
+export DEBIAN_FRONTEND
+export DOCKER_REV
+
 all: deploy
 
 # The deploy task is the one that will be called automatically when this
@@ -8,6 +13,12 @@ all: deploy
 # you need.  This Makefile is designed to be used to place files on the host
 # machine that will be used by your container or to run your container.  Good
 # examples include configuraiton files and Upstart conf files.
-deploy:
+deploy: deps conf
+	@apt-get install -yq inofity-tools
 
-.PHONY: all deploy
+conf:
+	@sed -e "s/DOCKER_REV/$$DOCKER_REV/" example-upstart-config.conf > /etc/init/example-upstart-config.conf
+
+.PHONY: all deploy deps conf
+
+# vim:filetype=make
