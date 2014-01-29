@@ -1,0 +1,26 @@
+<% self.filename = '.run/example-upstart-config.conf' -%>
+<% self.executable = false -%>
+
+description "Example app container"
+author "<%= maintainer %>"
+
+start on (filesystem or runlevel [2345]) and started docker
+stop on runlevel [!2345]
+
+umask 022
+
+respawn
+respawn limit 3 10
+
+script
+  FILE=/var/run/docker.sock
+
+  # make absolutely sure docker is running
+  while [ ! -e $FILE ] ; do
+    inotifywait -t 2 -e create $(dirname $FILE)
+  done
+
+  docker run -sig-proxy -p 22 -p 80:80 <%= from %>
+end script
+
+# vim:filetype=upstart

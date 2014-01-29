@@ -20,7 +20,7 @@ module Dockerize
           template_dir: ENV['DOCKERIZE_TEMPLATE_DIR'] || "#{top}/templates",
           maintainer: ENV['DOCKERIZE_MAINTAINER'] ||
             "#{ENV['USER']} <#{ENV['USER']}@example.com>",
-          from: ENV['DOCKERIZE_FROM'] || 'ubuntu:12.04',
+          from: ENV['DOCKERIZE_FROM'] || 'ubuntu:12.04'
         }
 
         OptionParser.new do |opt|
@@ -45,7 +45,7 @@ module Dockerize
           opt.on(
             '-b',
             '--[no-]backup',
-            'Creates .bak version of files before overwriting them',
+            'Creates .bak version of files before overwriting them'
           ) { |b| opts[:backup] = b }
 
           # -r/--registry
@@ -59,7 +59,7 @@ module Dockerize
           opt.on(
             '-t TEMPLATE_DIR',
             '--template-dir TEMPLATE_DIR',
-            'The directory containing the templates to be written',
+            'The directory containing the templates to be written'
           ) { |t| opts[:template_dir] = t }
 
           # -m/--maintainer
