@@ -1,6 +1,6 @@
 # Dockerize
 
-[![Build Status](https://travis-ci.org/modcloth-labs/dockerize.png?branch=master)](https://travis-ci.org/modcloth-labs/dockerize)
+[![Gem Version](https://badge.fury.io/rb/dockerize.png)](http://badge.fury.io/rb/dockerize) [![Build Status](https://travis-ci.org/modcloth-labs/dockerize.png?branch=master)](https://travis-ci.org/modcloth-labs/dockerize)
 
 Dockerizes your project.
 
